@@ -2502,9 +2502,8 @@ input.tc-invalid.tc-input-active{
   box-shadow:inset 0 3px 7px rgba(25,73,116,.26) !important;
 }
 
-/* TOTAL TC fields use iOS's native edit menu (Paste) while keeping the custom keypad. */
-#panel5 .cut-start,
-#panel5 .cut-end{
+/* All calculator inputs can use iOS's native edit menu (Paste) while keeping the custom keypad. */
+input.tc-native-paste{
   -webkit-touch-callout:default !important;
   -webkit-user-select:text !important;
   user-select:text !important;
@@ -2531,7 +2530,7 @@ input.tc-invalid.tc-input-active{
       <span class="mark-shine"></span>
     </div>
     <div class="logo-type">
-      <h1 class="brand"><span class="brand-time">REye TC Calk</span><span class="version-tag">β 0.0.1</span></h1>
+      <h1 class="brand"><span class="brand-time">REye TC Calk</span><span class="version-tag">β 0.0.1 r3</span></h1>
     </div>
   </div>
 
@@ -2711,79 +2710,99 @@ function isFrameInput(el){
   return !!el && el.id === 'frameInput';
 }
 
+function prepareNativePasteInput(el){
+  if(!el || el.dataset.nativePasteWired === '1') return;
+  el.dataset.nativePasteWired = '1';
+  el.classList.add('tc-native-paste');
+  el.readOnly = false;
+  el.setAttribute('inputmode','none');
+  el.setAttribute('autocomplete','off');
+  el.setAttribute('autocapitalize','off');
+  el.setAttribute('spellcheck','false');
+
+  // Keep iOS text selection / long-press Paste behavior natural.
+  // Only a native paste is allowed to alter the value; normal typing stays disabled.
+  el.addEventListener('beforeinput',(event)=>{
+    if(event.inputType === 'insertFromPaste'){
+      el.dataset.nativePastePending = '1';
+      // Replace the whole calculator value rather than inserting at the caret.
+      try{ el.setSelectionRange(0, el.value.length); }catch(e){}
+      return;
+    }
+    if(event.inputType){
+      event.preventDefault();
+    }
+  });
+}
+
 function wireFrameInput(el){
   if(!el || el.dataset.frameWired === '1') return;
   el.dataset.frameWired = '1';
-  el.readOnly = true;
-  el.setAttribute('inputmode','none');
+  prepareNativePasteInput(el);
+
   const current = el.value.replace(/\D/g,'');
   el.dataset.rawDigits = current === '0' ? '' : current;
 
   el.addEventListener('click',()=>setActiveTCInput(el));
-  el.addEventListener('focus',()=>{
+  el.addEventListener('focus',()=>setActiveTCInput(el));
+
+  el.addEventListener('paste',(event)=>{
+    const text = event.clipboardData ? event.clipboardData.getData('text') : '';
+    if(text){
+      event.preventDefault();
+      const digits = text.replace(/\D/g,'').slice(0,9);
+      el.value = digits || '0';
+      el.dataset.rawDigits = digits;
+      setActiveTCInput(el);
+      el.dataset.nativePastePending = '';
+    }
+  });
+
+  el.addEventListener('input',()=>{
+    if(el.dataset.nativePastePending !== '1') return;
+    el.dataset.nativePastePending = '';
+    const digits = el.value.replace(/\D/g,'').slice(0,9);
+    el.value = digits || '0';
+    el.dataset.rawDigits = digits;
     setActiveTCInput(el);
-    el.blur();
   });
 }
 
 function wireTCInput(el){
   if(el.dataset.tcWired === '1') return;
   el.dataset.tcWired = '1';
-
-  const isTotalCutField = el.classList.contains('cut-start') || el.classList.contains('cut-end');
-  el.readOnly = !isTotalCutField;
-  el.setAttribute('inputmode','none');
+  prepareNativePasteInput(el);
 
   const current = el.value.replace(/\D/g,'');
   el.dataset.rawDigits = current === '00000000' ? '' : current;
 
-  el.addEventListener('click',()=>{
-    setActiveTCInput(el);
-    if(isTotalCutField){
-      requestAnimationFrame(()=>{
-        try{ el.setSelectionRange(0, el.value.length); }catch(e){}
-      });
+  // A normal tap only activates the field. Do not force-select its contents;
+  // this lets iOS place the caret and show its own edit menu naturally.
+  el.addEventListener('click',()=>setActiveTCInput(el));
+  el.addEventListener('focus',()=>setActiveTCInput(el));
+
+  el.addEventListener('paste',(event)=>{
+    const text = event.clipboardData ? event.clipboardData.getData('text') : '';
+    if(text){
+      event.preventDefault();
+      el.dataset.nativePastePending = '';
+      applyPastedTC(el, text);
     }
   });
 
-  el.addEventListener('focus',()=>{
-    setActiveTCInput(el);
-    if(!isTotalCutField){
-      el.blur();
-    }else{
-      requestAnimationFrame(()=>{
-        try{ el.setSelectionRange(0, el.value.length); }catch(e){}
-      });
+  // Some iOS WebKit versions do not expose clipboardData to the paste event.
+  // In that case let the native paste happen, then normalize the whole field.
+  el.addEventListener('input',()=>{
+    if(el.dataset.nativePastePending !== '1') return;
+    el.dataset.nativePastePending = '';
+    const normalized = normalizePastedTC(el.value);
+    if(normalized){
+      el.value = normalized;
+      el.dataset.rawDigits = normalized.replace(/\D/g,'');
+      setActiveTCInput(el);
+      validateTCField(el);
     }
   });
-
-  if(isTotalCutField){
-    // Keep the field editable so iOS can show its native Paste menu,
-    // but suppress ordinary text entry; the custom keypad remains authoritative.
-    el.addEventListener('beforeinput',(event)=>{
-      if(event.inputType && event.inputType !== 'insertFromPaste'){
-        event.preventDefault();
-      }
-    });
-
-    el.addEventListener('paste',(event)=>{
-      const text = event.clipboardData ? event.clipboardData.getData('text') : '';
-      if(text){
-        event.preventDefault();
-        applyPastedTC(el, text);
-      }else{
-        // Fallback for iOS variants that do not expose clipboardData on the paste event.
-        requestAnimationFrame(()=>{
-          const normalized = normalizePastedTC(el.value);
-          if(normalized){
-            el.value = normalized;
-            el.dataset.rawDigits = normalized.replace(/\D/g,'');
-            validateTCField(el);
-          }
-        });
-      }
-    });
-  }
 
   validateTCField(el);
 }
@@ -2875,7 +2894,9 @@ function keypadNext(){
 
 function keypadDone(){
   if(!activeTCInput) return;
+  const current = activeTCInput;
   setActiveTCInput(null);
+  try{ current.blur(); }catch(e){}
 }
 
 let cutSequence = 0;
@@ -3316,18 +3337,24 @@ if ('serviceWorker' in navigator) {
   let startX = 0;
   let startY = 0;
   let tracking = false;
+  let nativeInputGesture = false;
 
   document.addEventListener('touchstart', (event) => {
     if (event.touches.length !== 1) {
       tracking = false;
+      nativeInputGesture = false;
       return;
     }
-    tracking = true;
+    nativeInputGesture = !!event.target.closest?.('input.tc-native-paste');
+    tracking = !nativeInputGesture;
     startX = event.touches[0].clientX;
     startY = event.touches[0].clientY;
   }, {passive:true});
 
   document.addEventListener('touchmove', (event) => {
+    // Let iOS fully own gestures that begin inside calculator inputs so
+    // caret movement, text selection and the native Paste menu feel natural.
+    if (nativeInputGesture) return;
     if (!tracking || event.touches.length !== 1) return;
     const dx = event.touches[0].clientX - startX;
     const dy = event.touches[0].clientY - startY;
@@ -3336,8 +3363,8 @@ if ('serviceWorker' in navigator) {
     }
   }, {passive:false});
 
-  document.addEventListener('touchend', () => { tracking = false; }, {passive:true});
-  document.addEventListener('touchcancel', () => { tracking = false; }, {passive:true});
+  document.addEventListener('touchend', () => { tracking = false; nativeInputGesture = false; }, {passive:true});
+  document.addEventListener('touchcancel', () => { tracking = false; nativeInputGesture = false; }, {passive:true});
 })();
 </script>
 </body>
