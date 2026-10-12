@@ -2723,8 +2723,8 @@ input.tc-native-paste{
 }
 </style>
 
-<style id="beta-0-0-2-r1">
-/* β 0.0.2 r1 — multi-frame-rate selector and responsive header. */
+<style id="beta-0-0-2-r2">
+/* β 0.0.2 r2 — Add/Sub post-calc selection improvement. */
 .rate-select-shell{
   position:relative;min-width:118px;border-radius:15px;padding:3px;
   background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(197,219,241,.58));
@@ -2777,7 +2777,7 @@ input.tc-native-paste{
       <span class="mark-shine"></span>
     </div>
     <div class="logo-type">
-      <h1 class="brand"><span class="brand-time">REye TC Calk</span><span class="version-tag">β 0.0.2 r1</span></h1>
+      <h1 class="brand"><span class="brand-time">REye TC Calk</span><span class="version-tag">β 0.0.2 r2</span></h1>
     </div>
   </div>
 
@@ -3520,6 +3520,18 @@ function calcAB(mode, silent=false){
   }
   panelResultFrames[2] = modulo(mode==='add' ? a+b : a-b, framesPer24Hours());
   if(activePanelNumber===2) renderPanelResult();
+
+  // After a manual Add/Sub calculation, return focus to the field the user was
+  // editing and select the whole TC so the next keypad entry can replace it.
+  // Silent recalculations (for example a frame-rate change) must not steal focus.
+  if(!silent){
+    const aEl=document.getElementById('tcA');
+    const bEl=document.getElementById('tcB');
+    const target=(activeTCInput===aEl || activeTCInput===bEl) ? activeTCInput : aEl;
+    setActiveTCInput(target);
+    try{ target.focus({preventScroll:true}); }catch(e){ try{target.focus();}catch(_){} }
+    requestAnimationFrame(()=>selectWholeInput(target, true));
+  }
   return true;
 }
 
