@@ -2723,8 +2723,8 @@ input.tc-native-paste{
 }
 </style>
 
-<style id="beta-0-0-2-r2">
-/* β 0.0.2 r2 — Add/Sub post-calc selection improvement. */
+<style id="beta-0-0-2-r3">
+/* β 0.0.2 r3 — Add/Sub and Frames post-conversion input selection improvements. */
 .rate-select-shell{
   position:relative;min-width:118px;border-radius:15px;padding:3px;
   background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(197,219,241,.58));
@@ -2777,7 +2777,7 @@ input.tc-native-paste{
       <span class="mark-shine"></span>
     </div>
     <div class="logo-type">
-      <h1 class="brand"><span class="brand-time">REye TC Calk</span><span class="version-tag">β 0.0.2 r2</span></h1>
+      <h1 class="brand"><span class="brand-time">REye TC Calk</span><span class="version-tag">β 0.0.2 r3</span></h1>
     </div>
   </div>
 
@@ -3548,14 +3548,21 @@ function setFrameConvertMode(direction){
 }
 
 function framesToResult(){
-  const v = parseInt(document.getElementById('frameInput').value,10);
+  const input=document.getElementById('frameInput');
+  const v = parseInt(input.value,10);
   if(Number.isNaN(v) || v < 0){ alert('0以上のフレーム数を入力してください。'); return; }
   frameResultDirection = 'tc';
   panelResultFrames[3] = v;
   renderPanelResult();
+
+  // Manual conversion: keep the source field ready for the next entry.
+  setActiveTCInput(input);
+  try{ input.focus({preventScroll:true}); }catch(e){ try{input.focus();}catch(_){} }
+  requestAnimationFrame(()=>selectWholeInput(input, true));
 }
 function tcToFramesResult(silent=false){
-  const f = tcToFrames(document.getElementById('frameTCInput').value);
+  const input=document.getElementById('frameTCInput');
+  const f = tcToFrames(input.value);
   if(Number.isNaN(f)){
     if(!silent) validateTC('frameTCInput');
     return false;
@@ -3563,6 +3570,14 @@ function tcToFramesResult(silent=false){
   frameResultDirection = 'frames';
   panelResultFrames[3] = f;
   if(activePanelNumber===3) renderPanelResult();
+
+  // Match Add/Sub behavior after a manual conversion. Silent recalculations
+  // (for example a frame-rate change) must not steal focus or selection.
+  if(!silent){
+    setActiveTCInput(input);
+    try{ input.focus({preventScroll:true}); }catch(e){ try{input.focus();}catch(_){} }
+    requestAnimationFrame(()=>selectWholeInput(input, true));
+  }
   return true;
 }
 
