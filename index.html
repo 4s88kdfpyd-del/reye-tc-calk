@@ -2513,7 +2513,7 @@ input.tc-native-paste{
 
 
 <style id="beta-0-0-1-r5-touch-fix">
-/* β 0.0.1 r5 — retain the iOS/PWA hit-test fix from r4.
+/* β 0.0.1 r6 — retain the iOS/PWA hit-test fix from r4.
    Let the document/window own vertical scrolling; horizontal drag is still blocked by JS below. */
 html{
   height:auto !important;
@@ -2535,6 +2535,112 @@ input.tc-native-paste{
 }
 </style>
 
+
+<style id="beta-0-0-1-r6">
+/* β 0.0.1 r6 — renamed/reordered tools, bidirectional Frames, Total Dur, and responsive total panels. */
+.tabbtn .tablabel{
+  white-space:nowrap !important;
+  font-size:9px !important;
+  letter-spacing:-.025em !important;
+  line-height:1 !important;
+}
+@media(max-width:360px){ .tabbtn .tablabel{font-size:8px !important;} }
+
+/* Total TC and Total Dur share the same middle-area behavior. */
+#panel4 .card,#panel5 .card{
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+}
+#panel4 .cut-scroll-area,#panel5 .cut-scroll-area{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+}
+#panel4 .cut-list,#panel5 .cut-list{overflow:visible !important;max-height:none !important;flex:none !important;}
+#panel4 .cut-add-inline,#panel5 .cut-add-inline{
+  flex:0 0 auto !important;
+  position:relative !important;
+  z-index:4 !important;
+  touch-action:manipulation !important;
+  transition:transform .08s ease,filter .08s ease,box-shadow .08s ease !important;
+}
+#panel4 .cut-add-inline:active,#panel4 .cut-add-inline.is-pressed,
+#panel5 .cut-add-inline:active,#panel5 .cut-add-inline.is-pressed{
+  transform:translateY(1px) scale(.985) !important;
+  filter:brightness(.78) saturate(1.08) !important;
+  box-shadow:inset 0 3px 7px rgba(25,73,116,.26) !important;
+}
+#panel4 .cut-total-full,#panel5 .cut-total-full{flex:0 0 auto !important;}
+#panel4 .cut-summary,#panel5 .cut-summary{flex:0 0 auto !important;}
+#panel5 .dur-row .cut-head{margin-bottom:6px !important;}
+#panel5 .dur-input-wrap{width:100%;}
+#panel5 .dur-input{font-size:20px !important;padding:12px 8px !important;}
+
+.frame-divider{display:flex;align-items:center;gap:8px;margin:8px 0;color:#73839a;font-size:9px;font-weight:900;letter-spacing:.12em;}
+.frame-divider:before,.frame-divider:after{content:"";height:1px;flex:1;background:rgba(255,255,255,.10);}
+#panel3 .frame-convert-buttons{margin-top:7px !important;}
+#panel3 .frame-card{padding-bottom:12px !important;}
+
+@media (orientation:portrait){
+  #panel4.active,#panel5.active{
+    flex:1 1 auto !important;
+    min-height:0 !important;
+    width:calc(100% + 8px) !important;
+    max-width:calc(520px + 8px) !important;
+    margin-left:-4px !important;
+    margin-right:-4px !important;
+    overflow:hidden !important;
+  }
+  #panel4.active .card,#panel5.active .card{
+    height:100% !important;
+    min-height:0 !important;
+    width:100% !important;
+    padding:7px 5px 6px !important;
+    margin:0 !important;
+  }
+  #panel4 .section-title,#panel5 .section-title{flex:0 0 auto !important;margin:0 2px 5px !important;}
+  #panel4 .cut-list,#panel5 .cut-list{gap:7px !important;width:100% !important;}
+  #panel4 .cut-row,#panel5 .cut-row{width:100% !important;padding:9px 6px !important;border-radius:14px !important;}
+  #panel4 .cut-head,#panel5 .cut-head{margin:0 2px 6px !important;}
+  #panel4 .cut-number,#panel4 .cut-duration,#panel5 .cut-number{font-size:10px !important;}
+  #panel4 .cut-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;gap:6px !important;width:100% !important;}
+  #panel4 .cut-grid input,#panel5 .dur-input{min-width:0 !important;width:100% !important;font-size:18px !important;padding:10px 4px !important;border-radius:11px !important;}
+  #panel4 .cut-add-inline,#panel5 .cut-add-inline{margin-top:7px !important;min-height:36px !important;padding:8px 6px !important;font-size:11px !important;}
+  #panel4 .cut-total-full,#panel5 .cut-total-full{min-height:38px !important;margin-top:6px !important;padding:8px 6px !important;font-size:12px !important;}
+  #panel4 .cut-summary,#panel5 .cut-summary{min-height:28px !important;margin-top:5px !important;padding:5px 8px !important;font-size:9px !important;}
+}
+@media (orientation:portrait) and (max-height:760px){
+  #panel4 .card,#panel5 .card{height:172px !important;min-height:172px !important;}
+}
+
+/* Native selection/paste: a single tap selects the whole calculator value. */
+input.tc-native-paste{
+  -webkit-touch-callout:default !important;
+  -webkit-user-select:text !important;
+  user-select:text !important;
+  touch-action:auto !important;
+}
+</style>
+
+
+<style id="beta-0-0-1-r6-header-fit">
+/* Keep version visible even on narrow iPhones without colliding with the rate switch. */
+.logo-type .brand{flex-direction:column !important;align-items:flex-start !important;justify-content:center !important;gap:1px !important;}
+.version-tag{display:block !important;margin:0 0 0 1px !important;font-size:7px !important;}
+@media(max-width:350px){
+  .topbar{gap:4px !important;}
+  .logo-wrap{gap:5px !important;}
+  .logo-mark{width:40px !important;height:40px !important;flex-basis:40px !important;border-radius:13px !important;}
+  .brand-time{font-size:20px !important;letter-spacing:-.05em !important;}
+  .version-tag{font-size:6px !important;letter-spacing:0 !important;}
+  .rate-btn{min-width:50px !important;padding:0 4px !important;font-size:8px !important;}
+  .rate-switch{padding:2px !important;gap:2px !important;}
+}
+</style>
 </head>
 <body>
 <div id="portraitOnly" class="portrait-only-overlay" aria-live="polite">
@@ -2554,7 +2660,7 @@ input.tc-native-paste{
       <span class="mark-shine"></span>
     </div>
     <div class="logo-type">
-      <h1 class="brand"><span class="brand-time">REye TC Calk</span><span class="version-tag">β 0.0.1 r5</span></h1>
+      <h1 class="brand"><span class="brand-time">REye TC Calk</span><span class="version-tag">β 0.0.1 r6</span></h1>
     </div>
   </div>
 
@@ -2574,83 +2680,82 @@ input.tc-native-paste{
 
   
 <div class="tabs">
-  <button class="tabbtn active" onclick="showPanel(1)" aria-label="開始と終了から尺を計算">
+  <button class="tabbtn active" onclick="showPanel(1)" aria-label="開始TCと終了TCからDurationを計算">
     <span class="tabicon icon-duration"><span class="i-clock"></span><span class="i-needle"></span></span>
-    <span class="tablabel">尺</span>
+    <span class="tablabel">Duration</span>
   </button>
-  <button class="tabbtn" onclick="showPanel(2)" aria-label="開始TCに尺を加算">
-    <span class="tabicon icon-next"><span class="i-plus"></span><span class="i-arrow"></span></span>
-    <span class="tablabel">加算</span>
-  </button>
-  <button class="tabbtn" onclick="showPanel(3)" aria-label="タイムコードの加算減算">
+  <button class="tabbtn" onclick="showPanel(2)" aria-label="タイムコードの加算減算">
     <span class="tabicon icon-calc"><span class="i-line top"></span><span class="i-line mid"></span><span class="i-line bot"></span></span>
-    <span class="tablabel">演算</span>
+    <span class="tablabel">Add/Sub</span>
   </button>
-  <button class="tabbtn" onclick="showPanel(4)" aria-label="フレーム数とタイムコードを変換">
+  <button class="tabbtn" onclick="showPanel(3)" aria-label="フレーム数とタイムコードを双方向変換">
     <span class="tabicon icon-frame"><span class="film-hole left"></span><span class="film-hole right"></span><span class="film-core"></span></span>
-    <span class="tablabel">Frame</span>
+    <span class="tablabel">Frames</span>
   </button>
-  <button class="tabbtn" onclick="showPanel(5)" aria-label="複数カットの総尺を計算">
+  <button class="tabbtn" onclick="showPanel(4)" aria-label="複数カットのタイムコードから合計Durationを計算">
     <span class="tabicon icon-total"><span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span></span>
-    <span class="tablabel">総尺</span>
+    <span class="tablabel">Total TC</span>
+  </button>
+  <button class="tabbtn" onclick="showPanel(5)" aria-label="複数のDurationを合計">
+    <span class="tabicon icon-next"><span class="i-plus"></span><span class="i-arrow"></span></span>
+    <span class="tablabel">Total Dur</span>
   </button>
 </div>
 
 <div id="panel1" class="panel active">
-    <div class="card">
-      <div class="section-title">開始TC → 終了TC から尺を計算</div>
-      <label>START TC</label><input id="startTC" type="text" inputmode="none" readonly value="00:00:00:00">
-      <div class="spacer"></div>
-      <label>END TC</label><input id="endTC" type="text" inputmode="none" readonly value="00:00:00:00">
-      <div class="buttons"><button onclick="calcDuration()">尺を計算</button><button class="secondary" onclick="swapStartEnd()">入れ替え</button></div>
-    </div>
+  <div class="card">
+    <div class="section-title">START TC → END TC から Duration を計算</div>
+    <label>START TC</label><input id="startTC" type="text" inputmode="none" value="00:00:00:00">
+    <div class="spacer"></div>
+    <label>END TC</label><input id="endTC" type="text" inputmode="none" value="00:00:00:00">
+    <div class="buttons"><button onclick="calcDuration()">Durationを計算</button><button class="secondary" onclick="swapStartEnd()">入れ替え</button></div>
   </div>
+</div>
 
-  <div id="panel2" class="panel">
-    <div class="card">
-      <div class="section-title">開始TC ＋ 尺 → 次のTC</div>
-      <label>START TC</label><input id="baseTC" type="text" inputmode="none" readonly value="00:00:00:00">
-      <div class="spacer"></div>
-      <label>DURATION</label><input id="durTC" type="text" inputmode="none" readonly value="00:00:00:00">
-      <div class="buttons"><button onclick="addDuration()">計算</button><button class="secondary" onclick="copyResult()">結果をコピー</button></div>
-    </div>
+<div id="panel2" class="panel">
+  <div class="card">
+    <div class="section-title">タイムコード同士の加算・減算</div>
+    <label>TC_A</label><input id="tcA" type="text" inputmode="none" value="00:00:00:00">
+    <div class="spacer"></div>
+    <label>TC_B</label><input id="tcB" type="text" inputmode="none" value="00:00:00:00">
+    <div class="buttons"><button onclick="calcAB('add')">A ＋ B</button><button onclick="calcAB('sub')">A － B</button></div>
   </div>
+</div>
 
-  <div id="panel3" class="panel">
-    <div class="card">
-      <div class="section-title">タイムコード同士の加算・減算</div>
-      <label>TC_A</label><input id="tcA" type="text" inputmode="none" readonly value="00:00:00:00">
-      <div class="spacer"></div>
-      <label>TC_B</label><input id="tcB" type="text" inputmode="none" readonly value="00:00:00:00">
-      <div class="buttons"><button onclick="calcAB('add')">A ＋ B</button><button onclick="calcAB('sub')">A － B</button></div>
-    </div>
+<div id="panel3" class="panel">
+  <div class="card frame-card">
+    <div class="section-title">タイムコード ⇄ フレーム数</div>
+    <label>TIMECODE</label><input id="frameTCInput" type="text" inputmode="none" value="00:00:00:00">
+    <div class="buttons frame-convert-buttons"><button onclick="tcToFramesResult()">TC → Frames</button><button class="secondary" onclick="copyResult()">結果をコピー</button></div>
+    <div class="frame-divider"><span>OR</span></div>
+    <label>TOTAL FRAMES</label><input id="frameInput" class="frame-input" type="text" inputmode="none" value="0">
+    <div class="buttons frame-convert-buttons"><button onclick="framesToResult()">Frames → TC</button><button class="danger" onclick="resetFramePanel()">リセット</button></div>
   </div>
+</div>
 
-  <div id="panel4" class="panel">
-    <div class="card">
-      <div class="section-title">フレーム数 ↔ タイムコード</div>
-      <label>TOTAL FRAMES</label><input id="frameInput" class="frame-input" type="text" inputmode="none" readonly value="0">
-      <div class="buttons"><button onclick="framesToResult()">TCに変換</button><button class="danger" onclick="resetAll()">リセット</button></div>
+<div id="panel4" class="panel total-panel">
+  <div class="card">
+    <div class="section-title">複数カットのTCから Total Duration を計算</div>
+    <div id="cutScrollArea" class="cut-scroll-area">
+      <div id="cutList" class="cut-list"></div>
     </div>
+    <button class="cut-add-inline" type="button" onclick="addCutRow()">＋ カット追加</button>
+    <button class="cut-total-full" type="button" onclick="calcCutTotal()">Total TCを計算</button>
+    <div class="cut-summary"><span>登録カット数</span><strong id="cutCount">0 CUTS</strong></div>
   </div>
+</div>
 
-  <div id="panel5" class="panel">
-    <div class="card">
-      <div class="section-title">複数カットの総尺を計算</div>
-
-      <div id="cutScrollArea" class="cut-scroll-area">
-        <div id="cutList" class="cut-list"></div>
-      </div>
-
-      <button class="cut-add-inline" type="button" onclick="addCutRow()">＋ カット追加</button>
-      <button class="cut-total-full" type="button" onclick="calcCutTotal()">総尺を計算</button>
-
-      <div class="cut-summary">
-        <span>登録カット数</span>
-        <strong id="cutCount">0 CUTS</strong>
-      </div>
+<div id="panel5" class="panel total-panel">
+  <div class="card">
+    <div class="section-title">Duration を追加して合計</div>
+    <div id="durScrollArea" class="cut-scroll-area dur-scroll-area">
+      <div id="durList" class="cut-list dur-list"></div>
     </div>
+    <button class="cut-add-inline" type="button" onclick="addDurationRow()">＋ カット追加</button>
+    <button class="cut-total-full" type="button" onclick="calcDurationTotal()">Total Durを計算</button>
+    <div class="cut-summary"><span>登録カット数</span><strong id="durCount">0 CUTS</strong></div>
   </div>
+</div>
 
   <div class="card result-card">
     <div class="result-label"><span>RESULT</span><span class="result-dot"></span></div>
@@ -2685,23 +2790,43 @@ input.tc-native-paste{
 </div>
 <script>
 const NOMINAL_FPS = 30;
+const NDF_FRAMES_PER_24H = 30 * 60 * 60 * 24;
+const DF_FRAMES_PER_HOUR = 107892;
+const DF_FRAMES_PER_24H = DF_FRAMES_PER_HOUR * 24;
 
 function currentMode(){ return document.getElementById('mode').value; }
 function isDF(){ return currentMode() === 'df'; }
-
+function framesPer24Hours(){ return isDF() ? DF_FRAMES_PER_24H : NDF_FRAMES_PER_24H; }
 
 let activeTCInput = null;
+let activePanelNumber = 1;
+let addSubLastOp = 'add';
+let frameResultDirection = 'tc'; // 'tc' = Frames→TC, 'frames' = TC→Frames
+const panelResultFrames = {1:0,2:0,3:0,4:0,5:0};
+
+function isFrameCountInput(el){ return !!el && el.id === 'frameInput'; }
+function isDurationInput(el){ return !!el && el.classList.contains('duration-input'); }
+function isNormalTCInput(el){ return !!el && !isFrameCountInput(el) && !isDurationInput(el); }
 
 function getTCLabel(el){
   const row = el.closest('.cut-row');
   if(row){
     const idx = row.querySelector('.cut-index')?.textContent || '';
-    const kind = el.classList.contains('cut-start') ? 'START TC' : 'END TC';
-    return `CUT ${idx} / ${kind}`;
+    if(el.classList.contains('cut-start')) return `CUT ${idx} / START TC`;
+    if(el.classList.contains('cut-end')) return `CUT ${idx} / END TC`;
+    if(el.classList.contains('dur-input')) return `CUT ${idx} / DURATION`;
   }
-  const wrap = el.parentElement;
-  const label = wrap ? wrap.querySelector('label') : null;
+  const parent = el.parentElement;
+  const label = parent ? parent.querySelector('label') : null;
   return label ? label.textContent.trim() : 'TIMECODE';
+}
+
+function selectWholeInput(el, markReplace=true){
+  if(!el) return;
+  try{
+    el.setSelectionRange(0, el.value.length);
+  }catch(e){}
+  if(markReplace) el.dataset.replaceOnNextKey = '1';
 }
 
 function setActiveTCInput(el){
@@ -2709,29 +2834,24 @@ function setActiveTCInput(el){
   activeTCInput = el;
   if(activeTCInput){
     activeTCInput.classList.add('tc-input-active');
-
     if(typeof activeTCInput.dataset.rawDigits === 'undefined'){
       const current = activeTCInput.value.replace(/\D/g,'');
-      if(isFrameInput(activeTCInput)){
+      if(isFrameCountInput(activeTCInput)){
         activeTCInput.dataset.rawDigits = current === '0' ? '' : current;
       }else{
         activeTCInput.dataset.rawDigits = current === '00000000' ? '' : current;
       }
     }
-
     document.getElementById('keypadTarget').textContent = getTCLabel(activeTCInput);
-
-    if(!isFrameInput(activeTCInput)){
-      validateTCField(activeTCInput);
-    }
+    if(!isFrameCountInput(activeTCInput)) validateTCField(activeTCInput);
   }else{
     document.getElementById('keypadTarget').textContent = '入力欄をタップ';
   }
 }
 
-
-function isFrameInput(el){
-  return !!el && el.id === 'frameInput';
+function activateAndSelectInput(el){
+  setActiveTCInput(el);
+  requestAnimationFrame(()=>selectWholeInput(el, true));
 }
 
 function prepareNativePasteInput(el){
@@ -2744,18 +2864,14 @@ function prepareNativePasteInput(el){
   el.setAttribute('autocapitalize','off');
   el.setAttribute('spellcheck','false');
 
-  // Keep iOS text selection / long-press Paste behavior natural.
-  // Only a native paste is allowed to alter the value; normal typing stays disabled.
+  // Keep the native iOS edit menu, but block normal keyboard text insertion.
   el.addEventListener('beforeinput',(event)=>{
     if(event.inputType === 'insertFromPaste'){
       el.dataset.nativePastePending = '1';
-      // Replace the whole calculator value rather than inserting at the caret.
       try{ el.setSelectionRange(0, el.value.length); }catch(e){}
       return;
     }
-    if(event.inputType){
-      event.preventDefault();
-    }
+    if(event.inputType) event.preventDefault();
   });
 }
 
@@ -2763,12 +2879,10 @@ function wireFrameInput(el){
   if(!el || el.dataset.frameWired === '1') return;
   el.dataset.frameWired = '1';
   prepareNativePasteInput(el);
-
   const current = el.value.replace(/\D/g,'');
   el.dataset.rawDigits = current === '0' ? '' : current;
-
-  el.addEventListener('click',()=>setActiveTCInput(el));
-  el.addEventListener('focus',()=>setActiveTCInput(el));
+  el.addEventListener('click',()=>activateAndSelectInput(el));
+  el.addEventListener('focus',()=>activateAndSelectInput(el));
 
   el.addEventListener('paste',(event)=>{
     const text = event.clipboardData ? event.clipboardData.getData('text') : '';
@@ -2777,11 +2891,12 @@ function wireFrameInput(el){
       const digits = text.replace(/\D/g,'').slice(0,9);
       el.value = digits || '0';
       el.dataset.rawDigits = digits;
+      el.dataset.replaceOnNextKey = '1';
       setActiveTCInput(el);
+      selectWholeInput(el, true);
       el.dataset.nativePastePending = '';
     }
   });
-
   el.addEventListener('input',()=>{
     if(el.dataset.nativePastePending !== '1') return;
     el.dataset.nativePastePending = '';
@@ -2789,21 +2904,21 @@ function wireFrameInput(el){
     el.value = digits || '0';
     el.dataset.rawDigits = digits;
     setActiveTCInput(el);
+    selectWholeInput(el, true);
   });
 }
 
 function wireTCInput(el){
-  if(el.dataset.tcWired === '1') return;
+  if(!el || el.dataset.tcWired === '1') return;
   el.dataset.tcWired = '1';
   prepareNativePasteInput(el);
-
   const current = el.value.replace(/\D/g,'');
   el.dataset.rawDigits = current === '00000000' ? '' : current;
 
-  // A normal tap only activates the field. Do not force-select its contents;
-  // this lets iOS place the caret and show its own edit menu naturally.
-  el.addEventListener('click',()=>setActiveTCInput(el));
-  el.addEventListener('focus',()=>setActiveTCInput(el));
+  // A single tap/focus selects the whole value. Long-press still belongs to iOS,
+  // so the standard Paste menu remains available for the selected value.
+  el.addEventListener('click',()=>activateAndSelectInput(el));
+  el.addEventListener('focus',()=>activateAndSelectInput(el));
 
   el.addEventListener('paste',(event)=>{
     const text = event.clipboardData ? event.clipboardData.getData('text') : '';
@@ -2813,9 +2928,6 @@ function wireTCInput(el){
       applyPastedTC(el, text);
     }
   });
-
-  // Some iOS WebKit versions do not expose clipboardData to the paste event.
-  // In that case let the native paste happen, then normalize the whole field.
   el.addEventListener('input',()=>{
     if(el.dataset.nativePastePending !== '1') return;
     el.dataset.nativePastePending = '';
@@ -2825,12 +2937,11 @@ function wireTCInput(el){
       el.dataset.rawDigits = normalized.replace(/\D/g,'');
       setActiveTCInput(el);
       validateTCField(el);
+      selectWholeInput(el, true);
     }
   });
-
   validateTCField(el);
 }
-
 
 function activeDigits(){
   if(!activeTCInput) return '';
@@ -2839,10 +2950,10 @@ function activeDigits(){
 
 function setActiveDigits(digits){
   if(!activeTCInput) return;
-
   digits = digits.replace(/\D/g,'');
+  activeTCInput.dataset.replaceOnNextKey = '0';
 
-  if(isFrameInput(activeTCInput)){
+  if(isFrameCountInput(activeTCInput)){
     digits = digits.slice(0,9);
     activeTCInput.dataset.rawDigits = digits;
     activeTCInput.value = digits || '0';
@@ -2851,7 +2962,6 @@ function setActiveDigits(digits){
 
   digits = digits.slice(0,8);
   activeTCInput.dataset.rawDigits = digits;
-
   const padded = digits.padStart(8,'0');
   activeTCInput.value = `${padded.slice(0,2)}:${padded.slice(2,4)}:${padded.slice(4,6)}:${padded.slice(6,8)}`;
   validateTCField(activeTCInput);
@@ -2860,35 +2970,31 @@ function setActiveDigits(digits){
 function keypadPress(digit){
   if(!activeTCInput) return;
   let digits = activeDigits();
+  if(activeTCInput.dataset.replaceOnNextKey === '1') digits = '';
 
-  if(isFrameInput(activeTCInput)){
+  if(isFrameCountInput(activeTCInput)){
     if(digits.length >= 9) digits = '';
     setActiveDigits(digits + digit);
     return;
   }
-
-  if(digits.length >= 8){
-    digits = '';
-  }
-
-  digits += digit;
-  setActiveDigits(digits);
+  if(digits.length >= 8) digits = '';
+  setActiveDigits(digits + digit);
 }
-
 
 function keypadBackspace(){
   if(!activeTCInput) return;
-  const digits = activeDigits().slice(0,-1);
+  let digits = activeDigits();
+  if(activeTCInput.dataset.replaceOnNextKey === '1') digits = '';
+  else digits = digits.slice(0,-1);
   setActiveDigits(digits);
 }
 
 function keypadClear(){
   if(!activeTCInput) return;
   activeTCInput.dataset.rawDigits = '';
-
-  if(isFrameInput(activeTCInput)){
-    activeTCInput.value = '0';
-  }else{
+  activeTCInput.dataset.replaceOnNextKey = '0';
+  if(isFrameCountInput(activeTCInput)) activeTCInput.value = '0';
+  else{
     activeTCInput.value = '00:00:00:00';
     validateTCField(activeTCInput);
   }
@@ -2897,25 +3003,20 @@ function keypadClear(){
 function visibleTCInputs(){
   return [...document.querySelectorAll('input[type="text"]')].filter(el=>el.offsetParent !== null);
 }
-
 function keypadPrev(){
-  const inputs = visibleTCInputs();
-  if(!inputs.length) return;
+  const inputs = visibleTCInputs(); if(!inputs.length) return;
   let i = inputs.indexOf(activeTCInput);
   i = i <= 0 ? inputs.length - 1 : i - 1;
-  setActiveTCInput(inputs[i]);
+  activateAndSelectInput(inputs[i]);
   inputs[i].scrollIntoView({behavior:'smooth',block:'center'});
 }
-
 function keypadNext(){
-  const inputs = visibleTCInputs();
-  if(!inputs.length) return;
+  const inputs = visibleTCInputs(); if(!inputs.length) return;
   let i = inputs.indexOf(activeTCInput);
   i = (i < 0 || i >= inputs.length - 1) ? 0 : i + 1;
-  setActiveTCInput(inputs[i]);
+  activateAndSelectInput(inputs[i]);
   inputs[i].scrollIntoView({behavior:'smooth',block:'center'});
 }
-
 function keypadDone(){
   if(!activeTCInput) return;
   const current = activeTCInput;
@@ -2923,48 +3024,234 @@ function keypadDone(){
   try{ current.blur(); }catch(e){}
 }
 
-let cutSequence = 0;
-
 function normalizePastedTC(text){
   const src = String(text ?? '').trim();
   if(!src) return null;
-
-  // Prefer an explicit TC-shaped substring, and accept ':' or ';' separators.
-  const match = src.match(/(\d{1,3})\s*[:;]\s*(\d{1,2})\s*[:;]\s*(\d{1,2})\s*[:;]\s*(\d{1,2})/);
+  const match = src.match(/(\d{1,2})\s*[:;]\s*(\d{1,2})\s*[:;]\s*(\d{1,2})\s*[:;]\s*(\d{1,2})/);
   let digits;
   if(match){
-    const hh = match[1].padStart(2,'0');
-    const mm = match[2].padStart(2,'0');
-    const ss = match[3].padStart(2,'0');
-    const ff = match[4].padStart(2,'0');
-    digits = (hh + mm + ss + ff).slice(-8);
+    digits = match.slice(1,5).map(v=>v.padStart(2,'0')).join('');
   }else{
     const onlyDigits = src.replace(/\D/g,'');
     if(!onlyDigits || onlyDigits.length > 8) return null;
     digits = onlyDigits.padStart(8,'0');
   }
-
   return `${digits.slice(0,2)}:${digits.slice(2,4)}:${digits.slice(4,6)}:${digits.slice(6,8)}`;
 }
 
 function applyPastedTC(input, text){
   const tc = normalizePastedTC(text);
-  if(!tc){
-    alert('タイムコードを HH:MM:SS:FF 形式でコピーしてください。');
-    return false;
-  }
-
+  if(!tc){ alert('タイムコードを HH:MM:SS:FF 形式でコピーしてください。'); return false; }
   input.value = tc;
   input.dataset.rawDigits = tc.replace(/\D/g,'');
+  input.dataset.replaceOnNextKey = '1';
   setActiveTCInput(input);
   const valid = validateTCField(input);
-  if(!valid){
-    // Keep the pasted value visible/red so the user can see what is wrong.
+  selectWholeInput(input, true);
+  return valid;
+}
+
+function parseFourField(value){
+  const m = String(value).trim().match(/^(\d{2}):([0-5]\d):([0-5]\d):([0-2]\d)$/);
+  if(!m) return null;
+  return {hh:+m[1],mm:+m[2],ss:+m[3],ff:+m[4]};
+}
+function parseTCAddress(tc){
+  const p = parseFourField(tc);
+  if(!p || p.hh > 23) return null;
+  if(isDF() && p.ss === 0 && (p.mm % 10) !== 0 && p.ff < 2) return null;
+  return p;
+}
+function parseDurationValue(tc){
+  return parseFourField(tc); // Duration fields are not subject to DF skipped-label restrictions.
+}
+
+function validateTCField(el){
+  if(!el || isFrameCountInput(el)) return true;
+  const p = isDurationInput(el) ? parseDurationValue(el.value) : parseTCAddress(el.value);
+  const valid = !!p;
+  el.classList.toggle('tc-invalid', !valid);
+  el.setAttribute('aria-invalid', valid ? 'false' : 'true');
+  return valid;
+}
+function validateAllTCFields(){
+  document.querySelectorAll('input[type="text"]').forEach(el=>{ if(!isFrameCountInput(el)) validateTCField(el); });
+}
+
+function tcAddressToFramesNDF(tc){
+  const p = parseTCAddress(tc); if(!p) return NaN;
+  return ((((p.hh*60)+p.mm)*60+p.ss)*30 + p.ff);
+}
+function tcAddressToFramesDF(tc){
+  const p = parseTCAddress(tc); if(!p) return NaN;
+  const totalMinutes = p.hh * 60 + p.mm;
+  const dropped = 2 * (totalMinutes - Math.floor(totalMinutes / 10));
+  return ((((p.hh*60)+p.mm)*60+p.ss)*30 + p.ff) - dropped;
+}
+function tcToFrames(tc){ return isDF() ? tcAddressToFramesDF(tc) : tcAddressToFramesNDF(tc); }
+function durationToFrames(tc){
+  const p = parseDurationValue(tc); if(!p) return NaN;
+  return ((((p.hh*60)+p.mm)*60+p.ss)*30 + p.ff);
+}
+
+function modulo(value, mod){ return ((value % mod) + mod) % mod; }
+
+function framesToTCNDF(totalFrames, wrap=true){
+  let f = Math.abs(Math.trunc(totalFrames));
+  if(wrap) f %= NDF_FRAMES_PER_24H;
+  const sign = (!wrap && totalFrames < 0) ? '-' : '';
+  const hh = Math.floor(f / (3600*30));
+  f %= 3600*30;
+  const mm = Math.floor(f / (60*30));
+  f %= 60*30;
+  const ss = Math.floor(f / 30);
+  const ff = f % 30;
+  return `${sign}${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}:${String(ff).padStart(2,'0')}`;
+}
+
+function framesToTCDF(totalFrames, wrap=true){
+  let frames = Math.abs(Math.trunc(totalFrames));
+  if(wrap) frames %= DF_FRAMES_PER_24H;
+  const sign = (!wrap && totalFrames < 0) ? '-' : '';
+  const framesPer10Minutes = 17982;
+  const d = Math.floor(frames / framesPer10Minutes);
+  const m = frames % framesPer10Minutes;
+  let tcFrames = frames + 18 * d;
+  if(m >= 2) tcFrames += 2 * Math.floor((m - 2) / 1798);
+  const hh = Math.floor(tcFrames / (30*60*60));
+  tcFrames %= 30*60*60;
+  const mm = Math.floor(tcFrames / (30*60));
+  tcFrames %= 30*60;
+  const ss = Math.floor(tcFrames / 30);
+  const ff = tcFrames % 30;
+  return `${sign}${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}:${String(ff).padStart(2,'0')}`;
+}
+
+function framesToTCAddress(frames){
+  const cycle = framesPer24Hours();
+  const wrapped = modulo(Math.trunc(frames), cycle);
+  return isDF() ? framesToTCDF(wrapped,true) : framesToTCNDF(wrapped,true);
+}
+function framesToExtendedTC(frames){ return isDF() ? framesToTCDF(frames,false) : framesToTCNDF(frames,false); }
+function framesToNominalDuration(frames){ return framesToTCNDF(frames,false); }
+
+function showResult(frames){
+  panelResultFrames[activePanelNumber] = Math.trunc(frames);
+  renderPanelResult();
+}
+
+function renderPanelResult(){
+  const frames = Math.trunc(panelResultFrames[activePanelNumber] ?? 0);
+  const resultEl = document.getElementById('result');
+  const framesEl = document.getElementById('frames');
+
+  if(activePanelNumber === 2){
+    resultEl.textContent = framesToTCAddress(frames);
+    framesEl.textContent = `${modulo(frames, framesPer24Hours()).toLocaleString()} フレーム`;
+    return;
+  }
+  if(activePanelNumber === 3){
+    if(frameResultDirection === 'frames'){
+      resultEl.textContent = Math.max(0,frames).toLocaleString();
+      framesEl.textContent = `${framesToTCAddress(frames)} TC`;
+    }else{
+      resultEl.textContent = framesToTCAddress(frames);
+      framesEl.textContent = `${modulo(frames, framesPer24Hours()).toLocaleString()} フレーム`;
+    }
+    return;
+  }
+  if(activePanelNumber === 5){
+    resultEl.textContent = framesToNominalDuration(frames);
+    framesEl.textContent = `${frames.toLocaleString()} フレーム`;
+    return;
+  }
+  // Duration and Total TC are elapsed values, so they do not wrap at 24:00.
+  resultEl.textContent = framesToExtendedTC(frames);
+  framesEl.textContent = `${frames.toLocaleString()} フレーム`;
+}
+
+function validateTC(id){
+  const el = document.getElementById(id);
+  const f = tcToFrames(el.value);
+  if(Number.isNaN(f)){
+    alert(isDF()
+      ? 'TCを確認してください。時は00〜23、FFは00〜29です。DFでは10分ごと以外の各分00秒で00・01フレームは使用できません。'
+      : 'TCは HH:MM:SS:FF 形式、時は00〜23、FFは00〜29です。');
+    return null;
+  }
+  return f;
+}
+
+function calcDuration(silent=false){
+  const s = tcToFrames(document.getElementById('startTC').value);
+  const e = tcToFrames(document.getElementById('endTC').value);
+  if(Number.isNaN(s) || Number.isNaN(e)){
+    if(!silent) validateTC(Number.isNaN(s)?'startTC':'endTC');
     return false;
   }
+  // START/END are normal 24-hour TC addresses. If END is lower, treat it as a midnight rollover.
+  let duration = e - s;
+  if(duration < 0) duration += framesPer24Hours();
+  panelResultFrames[1] = duration;
+  if(activePanelNumber===1) renderPanelResult();
   return true;
 }
 
+function swapStartEnd(){
+  const a=document.getElementById('startTC');
+  const b=document.getElementById('endTC');
+  [a.value,b.value]=[b.value,a.value];
+  for(const el of [a,b]){
+    const d=el.value.replace(/\D/g,'');
+    el.dataset.rawDigits = d === '00000000' ? '' : d;
+    el.dataset.replaceOnNextKey='1';
+    validateTCField(el);
+  }
+  // Requested behavior: swap immediately refreshes Duration without another button press.
+  calcDuration(true);
+}
+
+function calcAB(mode, silent=false){
+  addSubLastOp = mode;
+  const a = tcToFrames(document.getElementById('tcA').value);
+  const b = tcToFrames(document.getElementById('tcB').value);
+  if(Number.isNaN(a) || Number.isNaN(b)){
+    if(!silent) validateTC(Number.isNaN(a)?'tcA':'tcB');
+    return false;
+  }
+  panelResultFrames[2] = modulo(mode==='add' ? a+b : a-b, framesPer24Hours());
+  if(activePanelNumber===2) renderPanelResult();
+  return true;
+}
+
+function framesToResult(){
+  const v = parseInt(document.getElementById('frameInput').value,10);
+  if(Number.isNaN(v) || v < 0){ alert('0以上のフレーム数を入力してください。'); return; }
+  frameResultDirection = 'tc';
+  panelResultFrames[3] = v;
+  renderPanelResult();
+}
+function tcToFramesResult(silent=false){
+  const f = tcToFrames(document.getElementById('frameTCInput').value);
+  if(Number.isNaN(f)){
+    if(!silent) validateTC('frameTCInput');
+    return false;
+  }
+  frameResultDirection = 'frames';
+  panelResultFrames[3] = f;
+  if(activePanelNumber===3) renderPanelResult();
+  return true;
+}
+function resetFramePanel(){
+  const tc=document.getElementById('frameTCInput');
+  const fr=document.getElementById('frameInput');
+  tc.value='00:00:00:00'; tc.dataset.rawDigits=''; tc.dataset.replaceOnNextKey='1'; validateTCField(tc);
+  fr.value='0'; fr.dataset.rawDigits=''; fr.dataset.replaceOnNextKey='1';
+  frameResultDirection='tc'; panelResultFrames[3]=0;
+  if(activePanelNumber===3) renderPanelResult();
+}
+
+let cutSequence = 0;
 function addCutRow(start='00:00:00:00', end='00:00:00:00'){
   cutSequence++;
   const list = document.getElementById('cutList');
@@ -2973,422 +3260,186 @@ function addCutRow(start='00:00:00:00', end='00:00:00:00'){
   row.innerHTML = `
     <div class="cut-head">
       <div class="cut-number">CUT <span class="cut-index"></span></div>
-      <div class="cut-duration">尺 00:00:00:00</div>
+      <div class="cut-duration">Dur 00:00:00:00</div>
       <button class="cut-remove" type="button" onclick="removeCutRow(this)">削除</button>
     </div>
     <div class="cut-grid">
-      <div>
-        <label>START TC</label>
-        <input class="cut-start" type="text" inputmode="none" value="${start}">
-      </div>
-      <div>
-        <label>END TC</label>
-        <input class="cut-end" type="text" inputmode="none" value="${end}">
-      </div>
+      <div><label>START TC</label><input class="cut-start" type="text" inputmode="none" value="${start}"></div>
+      <div><label>END TC</label><input class="cut-end" type="text" inputmode="none" value="${end}"></div>
     </div>`;
   list.appendChild(row);
   row.querySelectorAll('input[type="text"]').forEach(wireTCInput);
   renumberCuts();
-  requestAnimationFrame(()=>{
-    const list = document.getElementById('cutList');
-    if(list){
-      list.scrollTop = list.scrollHeight;
-    }
-  });
-  requestAnimationFrame(()=>{
-    if(document.getElementById('panel5').classList.contains('active')){
-      const first = row.querySelector('.cut-start');
-      if(first) setActiveTCInput(first);
-    }
-  });
+  requestAnimationFrame(()=>{ const area=document.getElementById('cutScrollArea'); if(area) area.scrollTop=area.scrollHeight; });
+  requestAnimationFrame(()=>{ if(document.getElementById('panel4').classList.contains('active')) activateAndSelectInput(row.querySelector('.cut-start')); });
 }
-
 function removeCutRow(btn){
   const rows = document.querySelectorAll('#cutList .cut-row');
   if(rows.length <= 1){
-    const start = rows[0].querySelector('.cut-start');
-    const end = rows[0].querySelector('.cut-end');
-    start.value='00:00:00:00';
-    end.value='00:00:00:00';
-    start.dataset.rawDigits='';
-    end.dataset.rawDigits='';
-    validateTCField(start);
-    validateTCField(end);
-    rows[0].querySelector('.cut-duration').textContent='尺 00:00:00:00';
+    const start=rows[0].querySelector('.cut-start'), end=rows[0].querySelector('.cut-end');
+    for(const el of [start,end]){ el.value='00:00:00:00'; el.dataset.rawDigits=''; el.dataset.replaceOnNextKey='1'; validateTCField(el); }
+    rows[0].querySelector('.cut-duration').textContent='Dur 00:00:00:00';
     return;
   }
-  btn.closest('.cut-row').remove();
-  renumberCuts();
+  btn.closest('.cut-row').remove(); renumberCuts();
 }
-
 function renumberCuts(){
-  const rows = [...document.querySelectorAll('#cutList .cut-row')];
-  rows.forEach((row,i)=>{
-    row.querySelector('.cut-index').textContent = String(i+1).padStart(2,'0');
-  });
-  document.getElementById('cutCount').textContent = `${rows.length} CUT${rows.length === 1 ? '' : 'S'}`;
+  const rows=[...document.querySelectorAll('#cutList .cut-row')];
+  rows.forEach((row,i)=>row.querySelector('.cut-index').textContent=String(i+1).padStart(2,'0'));
+  document.getElementById('cutCount').textContent=`${rows.length} CUT${rows.length===1?'':'S'}`;
 }
-
-function calcCutTotal(){
-  const rows = [...document.querySelectorAll('#cutList .cut-row')];
-  let total = 0;
-
+function calculateCutTotalFrames(updateRows=true, silent=false){
+  const rows=[...document.querySelectorAll('#cutList .cut-row')];
+  let total=0;
   for(let i=0;i<rows.length;i++){
-    const row = rows[i];
-    const sText = row.querySelector('.cut-start').value;
-    const eText = row.querySelector('.cut-end').value;
-    const s = tcToFrames(sText);
-    const e = tcToFrames(eText);
-
-    if(Number.isNaN(s) || Number.isNaN(e)){
-      alert(`CUT ${i+1} のタイムコードを確認してください。`);
-      return;
+    const s=tcToFrames(rows[i].querySelector('.cut-start').value);
+    const e=tcToFrames(rows[i].querySelector('.cut-end').value);
+    if(Number.isNaN(s)||Number.isNaN(e)){
+      if(!silent) alert(`CUT ${i+1} のTCを確認してください。`);
+      return null;
     }
-    if(e < s){
-      alert(`CUT ${i+1} は END TC が START TC より前になっています。`);
-      return;
-    }
-
-    const duration = e - s;
-    total += duration;
-    row.querySelector('.cut-duration').textContent = `尺 ${framesToTC(duration)}`;
+    // START/END are 24-hour TC addresses; a lower END means the cut crossed midnight.
+    let d=e-s;
+    if(d<0) d+=framesPer24Hours();
+    total+=d;
+    if(updateRows) rows[i].querySelector('.cut-duration').textContent=`Dur ${framesToExtendedTC(d)}`;
   }
-
-  showResult(total);
+  return total;
+}
+function calcCutTotal(silent=false){
+  const total=calculateCutTotalFrames(true,silent);
+  if(total===null) return false;
+  panelResultFrames[4]=total;
+  if(activePanelNumber===4) renderPanelResult();
+  return true;
 }
 
-let activePanelNumber = 1;
-const panelResultFrames = {1:0,2:0,3:0,4:0,5:0};
-
-function renderPanelResult(){
-  const frames = panelResultFrames[activePanelNumber] ?? 0;
-  document.getElementById('result').textContent = framesToTC(frames);
-  document.getElementById('frames').textContent = `${Math.trunc(frames).toLocaleString()} フレーム`;
+let durSequence = 0;
+function addDurationRow(value='00:00:00:00'){
+  durSequence++;
+  const list=document.getElementById('durList');
+  const row=document.createElement('div');
+  row.className='cut-row dur-row';
+  row.innerHTML=`
+    <div class="cut-head">
+      <div class="cut-number">CUT <span class="cut-index"></span></div>
+      <button class="cut-remove" type="button" onclick="removeDurationRow(this)">削除</button>
+    </div>
+    <div class="dur-input-wrap"><label>DURATION</label><input class="dur-input duration-input" type="text" inputmode="none" value="${value}"></div>`;
+  list.appendChild(row);
+  wireTCInput(row.querySelector('.dur-input'));
+  renumberDurationRows();
+  requestAnimationFrame(()=>{ const area=document.getElementById('durScrollArea'); if(area) area.scrollTop=area.scrollHeight; });
+  requestAnimationFrame(()=>{ if(document.getElementById('panel5').classList.contains('active')) activateAndSelectInput(row.querySelector('.dur-input')); });
+}
+function removeDurationRow(btn){
+  const rows=document.querySelectorAll('#durList .dur-row');
+  if(rows.length<=1){
+    const el=rows[0].querySelector('.dur-input');
+    el.value='00:00:00:00'; el.dataset.rawDigits=''; el.dataset.replaceOnNextKey='1'; validateTCField(el); return;
+  }
+  btn.closest('.dur-row').remove(); renumberDurationRows();
+}
+function renumberDurationRows(){
+  const rows=[...document.querySelectorAll('#durList .dur-row')];
+  rows.forEach((row,i)=>row.querySelector('.cut-index').textContent=String(i+1).padStart(2,'0'));
+  document.getElementById('durCount').textContent=`${rows.length} CUT${rows.length===1?'':'S'}`;
+}
+function calculateDurationTotalFrames(silent=false){
+  const rows=[...document.querySelectorAll('#durList .dur-row')];
+  let total=0;
+  for(let i=0;i<rows.length;i++){
+    const f=durationToFrames(rows[i].querySelector('.dur-input').value);
+    if(Number.isNaN(f)){
+      if(!silent) alert(`CUT ${i+1} のDURATIONを確認してください。`);
+      return null;
+    }
+    total+=f;
+  }
+  return total;
+}
+function calcDurationTotal(silent=false){
+  const total=calculateDurationTotalFrames(silent);
+  if(total===null) return false;
+  panelResultFrames[5]=total;
+  if(activePanelNumber===5) renderPanelResult();
+  return true;
 }
 
 function showPanel(n){
-  activePanelNumber = n;
+  activePanelNumber=n;
   setActiveTCInput(null);
-  document.body.classList.toggle('total-mode', n === 5);
-
-  document.querySelectorAll('.panel').forEach((p,i)=>{
-    p.classList.toggle('active', i === n-1);
-  });
-
-  document.querySelectorAll('.tabbtn').forEach((b,i)=>{
-    b.classList.toggle('active', i === n-1);
-  });
-
-  // Each function owns its own RESULT. New/uncomputed functions start at zero.
+  document.body.classList.toggle('total-mode', n===4 || n===5);
+  document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===n-1));
+  document.querySelectorAll('.tabbtn').forEach((b,i)=>b.classList.toggle('active',i===n-1));
   renderPanelResult();
-
-  // タブを切り替えたら、その機能の最初のタイムコード入力欄を自動選択
   requestAnimationFrame(()=>{
-    const panel = document.getElementById(`panel${n}`);
-    if(!panel) return;
-
-    const firstTC = panel.querySelector('input[type="text"]');
-    if(firstTC){
-      setActiveTCInput(firstTC);
-    }
+    const panel=document.getElementById(`panel${n}`); if(!panel) return;
+    const first=panel.querySelector('input[type="text"]'); if(first) setActiveTCInput(first);
   });
 }
 
-
-function setMode(mode){
-  document.getElementById('mode').value = mode;
-  updateModeUI();
-
-}
-
+function setMode(mode){ document.getElementById('mode').value=mode; updateModeUI(); }
 function updateModeUI(){
-  const mode = currentMode();
-  const modeNote = document.getElementById('modeNote');
-  if(modeNote){
-    modeNote.textContent =
-      mode === 'df' ? '29.97fps ドロップフレーム' : '30fps ノンドロップ';
-  }
-
-  document.getElementById('rateNDF').classList.toggle('active', mode === 'ndf');
-  document.getElementById('rateDF').classList.toggle('active', mode === 'df');
-
-  document.querySelectorAll('#cutList .cut-duration').forEach(el=>{
-    el.textContent = '尺 00:00:00:00';
-  });
+  const mode=currentMode();
+  const modeNote=document.getElementById('modeNote');
+  if(modeNote) modeNote.textContent=mode==='df'?'29.97fps ドロップフレーム':'30fps ノンドロップ';
+  document.getElementById('rateNDF').classList.toggle('active',mode==='ndf');
+  document.getElementById('rateDF').classList.toggle('active',mode==='df');
   validateAllTCFields();
 
-  // RESULT values are stored internally as frame counts. When the frame-rate
-  // display mode changes, redraw the active function's RESULT immediately.
+  // Recompute panels whose input meaning changes with frame-rate. If an existing
+  // value becomes invalid in the new mode, clear that panel's RESULT rather than
+  // leaving a stale value from the previous frame rate.
+  if(!calcDuration(true)) panelResultFrames[1]=0;
+  if(!calcAB(addSubLastOp,true)) panelResultFrames[2]=0;
+  if(frameResultDirection==='frames' && !tcToFramesResult(true)) panelResultFrames[3]=0;
+  const totalTC=calculateCutTotalFrames(true,true); panelResultFrames[4]=(totalTC===null?0:totalTC);
+  // Total Dur uses duration values, intentionally independent from DF skipped labels.
+  const totalDur=calculateDurationTotalFrames(true); panelResultFrames[5]=(totalDur===null?0:totalDur);
   renderPanelResult();
-}
-
-
-
-function validateTCField(el){
-  if(!el || isFrameInput(el)) return true;
-
-  /*
-    Keypad input is right-aligned/zero-padded while typing.
-    Validate the value currently visible on screen instead of waiting for 8 raw digits.
-    Example: typing "30" immediately displays 00:00:00:30, so FF=30 turns red at once.
-  */
-  const tc = el.value.trim();
-  const p = parseTCString(tc);
-
-  let valid = !!p;
-  if(valid && isDF()){
-    // 29.97 DF: frame numbers 00 and 01 do not exist at minute starts except each 10th minute.
-    if(p.ss === 0 && (p.mm % 10) !== 0 && p.ff < 2){
-      valid = false;
-    }
-  }
-
-  el.classList.toggle('tc-invalid', !valid);
-  el.setAttribute('aria-invalid', valid ? 'false' : 'true');
-  return valid;
-}
-
-function validateAllTCFields(){
-  document.querySelectorAll('input[type="text"]').forEach(validateTCField);
-}
-
-function parseTCString(tc){
-  const m = tc.trim().match(/^(-)?(\d+):([0-5]?\d):([0-5]?\d):([0-2]?\d)$/);
-  if(!m) return null;
-  const sign = m[1] ? -1 : 1;
-  const hh = parseInt(m[2],10);
-  const mm = parseInt(m[3],10);
-  const ss = parseInt(m[4],10);
-  const ff = parseInt(m[5],10);
-  if(mm>59 || ss>59 || ff>29) return null;
-  return {sign,hh,mm,ss,ff};
-}
-
-function tcToFramesNDF(tc){
-  const p = parseTCString(tc);
-  if(!p) return NaN;
-  return p.sign * ((((p.hh*60)+p.mm)*60+p.ss)*30 + p.ff);
-}
-
-function tcToFramesDF(tc){
-  const p = parseTCString(tc);
-  if(!p) return NaN;
-
-  // In 29.97 DF, frame numbers 00 and 01 do not exist at the start
-  // of every minute except each 10th minute.
-  if(p.ss === 0 && (p.mm % 10) !== 0 && p.ff < 2) return NaN;
-
-  const totalMinutes = p.hh * 60 + p.mm;
-  const dropped = 2 * (totalMinutes - Math.floor(totalMinutes / 10));
-  const nominalFrames = ((((p.hh*60)+p.mm)*60+p.ss)*30 + p.ff);
-  return p.sign * (nominalFrames - dropped);
-}
-
-function tcToFrames(tc){
-  return isDF() ? tcToFramesDF(tc) : tcToFramesNDF(tc);
-}
-
-function framesToTCNDF(totalFrames){
-  const sign = totalFrames < 0 ? '-' : '';
-  let f = Math.abs(Math.trunc(totalFrames));
-
-  const hh = Math.floor(f / (3600*30));
-  f %= 3600*30;
-  const mm = Math.floor(f / (60*30));
-  f %= 60*30;
-  const ss = Math.floor(f / 30);
-  const ff = f % 30;
-
-  return `${sign}${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}:${String(ff).padStart(2,'0')}`;
-}
-
-function framesToTCDF(totalFrames){
-  const sign = totalFrames < 0 ? '-' : '';
-  let frames = Math.abs(Math.trunc(totalFrames));
-
-  const framesPer10Minutes = 17982;
-  const framesPerHour = 107892;
-  const framesPer24Hours = framesPerHour * 24;
-  frames %= framesPer24Hours;
-
-  const d = Math.floor(frames / framesPer10Minutes);
-  const m = frames % framesPer10Minutes;
-
-  let tcFrames = frames + 18 * d;
-  if (m >= 2) {
-    tcFrames += 2 * Math.floor((m - 2) / 1798);
-  }
-
-  const hh = Math.floor(tcFrames / (30*60*60));
-  tcFrames %= 30*60*60;
-  const mm = Math.floor(tcFrames / (30*60));
-  tcFrames %= 30*60;
-  const ss = Math.floor(tcFrames / 30);
-  const ff = tcFrames % 30;
-
-  return `${sign}${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}:${String(ff).padStart(2,'0')}`;
-}
-
-function framesToTC(frames){
-  return isDF() ? framesToTCDF(frames) : framesToTCNDF(frames);
-}
-
-function showResult(frames){
-  panelResultFrames[activePanelNumber] = frames;
-  renderPanelResult();
-}
-
-function validateTC(id){
-  const v = document.getElementById(id).value;
-  const f = tcToFrames(v);
-  if(Number.isNaN(f)){
-    alert(isDF()
-      ? 'タイムコードを確認してください。DFでは、10分ごと以外の各分00秒で 00・01フレームは使用できません。'
-      : 'タイムコードは HH:MM:SS:FF 形式で、FFは00〜29です。');
-    return null;
-  }
-  return f;
-}
-
-function calcDuration(){
-  const s = validateTC('startTC'); if(s===null) return;
-  const e = validateTC('endTC'); if(e===null) return;
-  showResult(e - s);
-}
-
-function addDuration(){
-  const b = validateTC('baseTC'); if(b===null) return;
-  const d = validateTC('durTC'); if(d===null) return;
-  showResult(b + d);
-}
-
-function calcAB(mode){
-  const a = validateTC('tcA'); if(a===null) return;
-  const b = validateTC('tcB'); if(b===null) return;
-  showResult(mode==='add' ? a+b : a-b);
-}
-
-function framesToResult(){
-  const v = parseInt(document.getElementById('frameInput').value,10);
-  if(Number.isNaN(v)){ alert('フレーム数を入力してください。'); return; }
-  showResult(v);
-}
-
-function swapStartEnd(){
-  const a=document.getElementById('startTC');
-  const b=document.getElementById('endTC');
-  [a.value,b.value]=[b.value,a.value];
-
-  // Keep the custom keypad's internal digit state in sync with the visible TC.
-  a.dataset.rawDigits = a.value.replace(/\D/g,'') === '00000000' ? '' : a.value.replace(/\D/g,'');
-  b.dataset.rawDigits = b.value.replace(/\D/g,'') === '00000000' ? '' : b.value.replace(/\D/g,'');
-  validateTCField(a);
-  validateTCField(b);
 }
 
 function resetAll(){
-  ['startTC','endTC','baseTC','durTC','tcA','tcB'].forEach(id=>{
-    const el = document.getElementById(id);
-    el.value='00:00:00:00';
-    el.dataset.rawDigits='';
-    validateTCField(el);
+  ['startTC','endTC','tcA','tcB','frameTCInput'].forEach(id=>{
+    const el=document.getElementById(id); el.value='00:00:00:00'; el.dataset.rawDigits=''; el.dataset.replaceOnNextKey='1'; validateTCField(el);
   });
-
-  const frameInput = document.getElementById('frameInput');
-  frameInput.value='0';
-  frameInput.dataset.rawDigits='';
-
-  const cutList = document.getElementById('cutList');
-  if(cutList){
-    cutList.innerHTML='';
-    addCutRow();
-    addCutRow();
-    addCutRow();
-  }
-
-  // This is a global reset, so clear every function's stored RESULT as well.
-  Object.keys(panelResultFrames).forEach(key=>{ panelResultFrames[key] = 0; });
-  renderPanelResult();
+  const frameInput=document.getElementById('frameInput'); frameInput.value='0'; frameInput.dataset.rawDigits=''; frameInput.dataset.replaceOnNextKey='1';
+  document.getElementById('cutList').innerHTML=''; document.getElementById('durList').innerHTML='';
+  for(let i=0;i<3;i++){ addCutRow(); addDurationRow(); }
+  Object.keys(panelResultFrames).forEach(k=>panelResultFrames[k]=0);
+  frameResultDirection='tc'; addSubLastOp='add'; renderPanelResult();
 }
 
 async function copyResult(){
   const text=document.getElementById('result').textContent;
-  try{
-    await navigator.clipboard.writeText(text);
-  }catch(e){
-    const ta=document.createElement('textarea');
-    ta.value=text; document.body.appendChild(ta); ta.select();
-    document.execCommand('copy'); ta.remove();
-  }
-  alert('コピーしました：'+text);
+  try{ await navigator.clipboard.writeText(text); }
+  catch(e){ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }
 }
 
-function formatTCWhileTyping(el){
-  const digits = el.value.replace(/\D/g,'').slice(0,8);
-  const groups = [];
-  for(let i=0;i<digits.length;i+=2){
-    groups.push(digits.slice(i,i+2));
-  }
-  el.value = groups.join(':');
+// Initial wiring
+for(const el of document.querySelectorAll('input[type="text"]')){
+  if(isFrameCountInput(el)) wireFrameInput(el); else wireTCInput(el);
 }
-
-function completeTCOnBlur(el){
-  let digits = el.value.replace(/\D/g,'').slice(0,8);
-  if(!digits) {
-    el.value = '00:00:00:00';
-    return;
-  }
-  digits = digits.padStart(8,'0');
-  el.value =
-    digits.slice(0,2) + ':' +
-    digits.slice(2,4) + ':' +
-    digits.slice(4,6) + ':' +
-    digits.slice(6,8);
-}
-
-document.querySelectorAll('input[type="text"]').forEach(el=>{
-  if(el.id === 'frameInput'){
-    wireFrameInput(el);
-  }else{
-    wireTCInput(el);
-  }
-});
-
-// 初期状態では3カットを用意
-addCutRow();
-addCutRow();
-addCutRow();
-
-// A fresh launch must never inherit a RESULT value from a previous session/version.
-showResult(0);
+for(let i=0;i<3;i++){ addCutRow(); addDurationRow(); }
+panelResultFrames[1]=0; panelResultFrames[2]=0; panelResultFrames[3]=0; panelResultFrames[4]=0; panelResultFrames[5]=0;
 updateModeUI();
-window.addEventListener('pageshow', ()=>{ showResult(0); });
 
-const cutAddButton = document.querySelector('#panel5 .cut-add-inline');
-if(cutAddButton){
-  const pressOn = ()=>cutAddButton.classList.add('is-pressed');
-  const pressOff = ()=>cutAddButton.classList.remove('is-pressed');
-  cutAddButton.addEventListener('touchstart', pressOn, {passive:true});
-  cutAddButton.addEventListener('touchend', pressOff, {passive:true});
-  cutAddButton.addEventListener('touchcancel', pressOff, {passive:true});
-  cutAddButton.addEventListener('pointerdown', pressOn);
-  cutAddButton.addEventListener('pointerup', pressOff);
-  cutAddButton.addEventListener('pointerleave', pressOff);
-}
-
-window.addEventListener('load', ()=>{
-  activePanelNumber = 1;
-  panelResultFrames[1] = 0;
-  renderPanelResult();
-  requestAnimationFrame(()=>{
-    const firstTC = document.querySelector('#panel1 input[type="text"]');
-    if(firstTC){
-      setActiveTCInput(firstTC);
-    }
+function wirePressedState(selector){
+  document.querySelectorAll(selector).forEach(btn=>{
+    const on=()=>btn.classList.add('is-pressed'), off=()=>btn.classList.remove('is-pressed');
+    btn.addEventListener('touchstart',on,{passive:true}); btn.addEventListener('touchend',off,{passive:true}); btn.addEventListener('touchcancel',off,{passive:true});
+    btn.addEventListener('pointerdown',on); btn.addEventListener('pointerup',off); btn.addEventListener('pointerleave',off);
   });
-});
+}
+wirePressedState('#panel4 .cut-add-inline, #panel5 .cut-add-inline');
 
+window.addEventListener('load',()=>{
+  activePanelNumber=1; panelResultFrames[1]=0; renderPanelResult();
+  requestAnimationFrame(()=>{ const first=document.querySelector('#panel1 input[type="text"]'); if(first) setActiveTCInput(first); });
+});
 </script>
+
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
