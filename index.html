@@ -2642,8 +2642,8 @@ input.tc-native-paste{
 }
 </style>
 
-<style id="beta-0-0-1-r7">
-/* β 0.0.1 r7 — caret-friendly selection, switched Frames UI, and locked Total keypad. */
+<style id="beta-0-0-1-r8">
+/* β 0.0.1 r8 — stable caret editing and custom-keypad selection handling. */
 .frame-mode-switch{
   display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;margin:0 0 9px;
   border-radius:14px;background:rgba(35,62,87,.10);border:1px solid rgba(87,137,181,.16);
@@ -2741,7 +2741,7 @@ input.tc-native-paste{
       <span class="mark-shine"></span>
     </div>
     <div class="logo-type">
-      <h1 class="brand"><span class="brand-time">REye TC Calk</span><span class="version-tag">β 0.0.1 r7</span></h1>
+      <h1 class="brand"><span class="brand-time">REye TC Calk</span><span class="version-tag">β 0.0.1 r8</span></h1>
     </div>
   </div>
 
@@ -2918,18 +2918,44 @@ function selectWholeInput(el, markReplace=true){
   if(markReplace) el.dataset.replaceOnNextKey = '1';
 }
 
+function syncSelectionMode(el){
+  if(!el) return;
+  try{
+    const start=el.selectionStart ?? 0;
+    const end=el.selectionEnd ?? start;
+    const whole=(start===0 && end===el.value.length);
+    if(whole){
+      el.dataset.cursorEdit='0';
+      el.dataset.replaceOnNextKey='1';
+    }else{
+      // A collapsed caret or a partial selection means the user is editing in place.
+      el.dataset.cursorEdit='1';
+      el.dataset.replaceOnNextKey='0';
+    }
+  }catch(e){}
+}
+
 function markCaretEdit(el){
   if(!el) return;
-  // After the first whole-value selection, a subsequent tap belongs to the browser.
-  // When that tap collapses/moves the selection, custom-keypad edits should honor the caret.
+  requestAnimationFrame(()=>syncSelectionMode(el));
+}
+
+function restoreSelectionWithoutReselect(el,start,end=start){
+  if(!el) return;
+  // Custom keypad buttons can temporarily take focus away from the input on iOS.
+  // Only suppress the next focus-select when focus actually needs to be restored.
+  const needsFocus=(document.activeElement!==el);
+  if(needsFocus) el.dataset.suppressAutoSelectOnce='1';
+  try{ el.focus({preventScroll:true}); }catch(e){ try{el.focus();}catch(_){} }
+  // focus() is synchronous in normal browsers. Clear a stale guard if focus did not fire
+  // (for example when the input never lost focus).
+  if(el.dataset.suppressAutoSelectOnce==='1' && document.activeElement===el){
+    delete el.dataset.suppressAutoSelectOnce;
+  }
   requestAnimationFrame(()=>{
     try{
-      const start=el.selectionStart, end=el.selectionEnd;
-      const whole=(start===0 && end===el.value.length);
-      if(!whole){
-        el.dataset.cursorEdit='1';
-        el.dataset.replaceOnNextKey='0';
-      }
+      el.setSelectionRange(start,end);
+      syncSelectionMode(el);
     }catch(e){}
   });
 }
@@ -2986,8 +3012,13 @@ function wireFrameInput(el){
   prepareNativePasteInput(el);
   const current = el.value.replace(/\D/g,'');
   el.dataset.rawDigits = current === '0' ? '' : current;
-  el.addEventListener('focus',()=>activateAndSelectInput(el));
+  el.addEventListener('focus',()=>{
+    setActiveTCInput(el);
+    if(el.dataset.suppressAutoSelectOnce==='1'){ el.dataset.suppressAutoSelectOnce=''; return; }
+    activateAndSelectInput(el);
+  });
   el.addEventListener('click',()=>{ setActiveTCInput(el); markCaretEdit(el); });
+  el.addEventListener('select',()=>syncSelectionMode(el));
 
   el.addEventListener('paste',(event)=>{
     const text = event.clipboardData ? event.clipboardData.getData('text') : '';
@@ -3022,8 +3053,13 @@ function wireTCInput(el){
 
   // First focus selects the whole value. A later tap is left to iOS so the user
   // can collapse the selection and place the caret at an arbitrary position.
-  el.addEventListener('focus',()=>activateAndSelectInput(el));
+  el.addEventListener('focus',()=>{
+    setActiveTCInput(el);
+    if(el.dataset.suppressAutoSelectOnce==='1'){ el.dataset.suppressAutoSelectOnce=''; return; }
+    activateAndSelectInput(el);
+  });
   el.addEventListener('click',()=>{ setActiveTCInput(el); markCaretEdit(el); });
+  el.addEventListener('select',()=>syncSelectionMode(el));
 
   el.addEventListener('paste',(event)=>{
     const text = event.clipboardData ? event.clipboardData.getData('text') : '';
@@ -3047,6 +3083,14 @@ function wireTCInput(el){
   });
   validateTCField(el);
 }
+
+// Keep keypad edit mode synchronized with native iOS caret/selection changes, including
+// selection-handle drags that do not emit a normal click event.
+document.addEventListener('selectionchange',()=>{
+  const el=activeTCInput;
+  if(!el || document.activeElement!==el) return;
+  syncSelectionMode(el);
+});
 
 function activeDigits(){
   if(!activeTCInput) return '';
@@ -3090,7 +3134,7 @@ function keypadPressAtCaret(digit){
     el.dataset.rawDigits=next;
     el.dataset.replaceOnNextKey='0';
     const caret=Math.min(start+1,el.value.length);
-    requestAnimationFrame(()=>{ try{el.focus({preventScroll:true});el.setSelectionRange(caret,caret);}catch(e){} });
+    restoreSelectionWithoutReselect(el,caret,caret);
     return true;
   }
 
@@ -3106,7 +3150,7 @@ function keypadPressAtCaret(digit){
   validateTCField(el);
   const idx=TC_DIGIT_POSITIONS.indexOf(pos);
   const caret=(idx>=0 && idx<TC_DIGIT_POSITIONS.length-1) ? TC_DIGIT_POSITIONS[idx+1] : el.value.length;
-  requestAnimationFrame(()=>{ try{el.focus({preventScroll:true});el.setSelectionRange(caret,caret);}catch(e){} });
+  restoreSelectionWithoutReselect(el,caret,caret);
   return true;
 }
 
@@ -3123,7 +3167,7 @@ function keypadBackspaceAtCaret(){
     const digits=value.replace(/\D/g,'').slice(0,9);
     el.value=digits||'0'; el.dataset.rawDigits=digits; el.dataset.replaceOnNextKey='0';
     nextCaret=Math.min(nextCaret,el.value.length);
-    requestAnimationFrame(()=>{ try{el.focus({preventScroll:true});el.setSelectionRange(nextCaret,nextCaret);}catch(e){} });
+    restoreSelectionWithoutReselect(el,nextCaret,nextCaret);
     return true;
   }
   const chars=el.value.split('');
@@ -3134,7 +3178,7 @@ function keypadBackspaceAtCaret(){
   targets.forEach(pos=>chars[pos]='0');
   el.value=chars.join(''); el.dataset.rawDigits=el.value.replace(/\D/g,''); el.dataset.replaceOnNextKey='0'; validateTCField(el);
   const caret=targets[0];
-  requestAnimationFrame(()=>{ try{el.focus({preventScroll:true});el.setSelectionRange(caret,caret);}catch(e){} });
+  restoreSelectionWithoutReselect(el,caret,caret);
   return true;
 }
 

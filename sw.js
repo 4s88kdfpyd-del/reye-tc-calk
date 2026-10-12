@@ -1,4 +1,4 @@
-const CACHE_NAME = 'reye-tc-calk-beta-0-0-1-r7';
+const CACHE_NAME = 'reye-tc-calk-beta-0-0-1-r8';
 const ASSETS = ['./','./index.html','./manifest.webmanifest','./icon.svg'];
 
 self.addEventListener('install', event => {
