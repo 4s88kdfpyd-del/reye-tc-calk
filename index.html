@@ -2643,7 +2643,7 @@ input.tc-native-paste{
 </style>
 
 <style id="beta-0-0-1-r9">
-/* β 0.0.1 r9 — live Total TC/Total Dur calculation. */
+/* β 0.0.2 r1 — live Total TC/Total Dur calculation. */
 .frame-mode-switch{
   display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;margin:0 0 9px;
   border-radius:14px;background:rgba(35,62,87,.10);border:1px solid rgba(87,137,181,.16);
@@ -2722,6 +2722,42 @@ input.tc-native-paste{
   body.total-mode #panel4 .cut-summary,body.total-mode #panel5 .cut-summary{min-height:22px !important;margin-top:3px !important;padding:3px 7px !important;}
 }
 </style>
+
+<style id="beta-0-0-2-r1">
+/* β 0.0.2 r1 — multi-frame-rate selector and responsive header. */
+.rate-select-shell{
+  position:relative;min-width:118px;border-radius:15px;padding:3px;
+  background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(197,219,241,.58));
+  border:1px solid rgba(255,255,255,.92);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 8px 15px rgba(43,81,121,.14);
+}
+.rate-select-shell::after{
+  content:"▾";position:absolute;right:10px;top:50%;transform:translateY(-52%);
+  color:#2d6fa9;font-size:11px;font-weight:900;pointer-events:none;
+}
+.rate-select{
+  appearance:none;-webkit-appearance:none;width:100%;min-height:36px;padding:0 27px 0 10px;
+  border:0;border-radius:12px;outline:0;background:linear-gradient(180deg,#f8fdff,#cbe6fa);
+  color:#205f96;font-size:12px;font-weight:900;letter-spacing:.01em;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 3px 8px rgba(56,90,126,.10);
+}
+.rate-select:focus{box-shadow:0 0 0 3px rgba(64,145,220,.16),inset 0 1px 0 rgba(255,255,255,.98);}
+@media(max-width:390px){
+  .rate-select-shell{min-width:100px;padding:2px;border-radius:13px;}
+  .rate-select{min-height:30px;padding-left:7px;padding-right:22px;font-size:10px;border-radius:11px;}
+  .rate-select-shell::after{right:7px;font-size:9px;}
+}
+@media(max-width:350px){
+  .rate-select-shell{min-width:88px !important;}
+  .rate-select{font-size:9px !important;padding-left:5px !important;padding-right:18px !important;}
+  .rate-select-shell::after{right:5px !important;font-size:8px !important;}
+}
+@media(min-width:700px) and (orientation:portrait){
+  .wrap{max-width:680px;}
+  .rate-select-shell{min-width:142px;}
+  .rate-select{font-size:13px;}
+}
+</style>
 </head>
 <body>
 <div id="portraitOnly" class="portrait-only-overlay" aria-live="polite">
@@ -2741,19 +2777,26 @@ input.tc-native-paste{
       <span class="mark-shine"></span>
     </div>
     <div class="logo-type">
-      <h1 class="brand"><span class="brand-time">REye TC Calk</span><span class="version-tag">β 0.0.1 r9</span></h1>
+      <h1 class="brand"><span class="brand-time">REye TC Calk</span><span class="version-tag">β 0.0.2 r1</span></h1>
     </div>
   </div>
 
   <div class="rate-switch-wrap">
-        <div class="rate-switch" role="tablist" aria-label="Frame rate switch">
-      <button id="rateNDF" class="rate-btn active" type="button" onclick="setMode('ndf')">30 NDF</button>
-      <button id="rateDF" class="rate-btn" type="button" onclick="setMode('df')">29.97 DF</button>
+    <div class="rate-label">FRAME RATE</div>
+    <div class="rate-select-shell">
+      <select id="mode" class="rate-select" onchange="updateModeUI()" aria-label="Frame rate">
+        <option value="23976_ndf">23.976 NDF</option>
+        <option value="24_ndf">24 NDF</option>
+        <option value="25_ndf">25 NDF</option>
+        <option value="2997_ndf">29.97 NDF</option>
+        <option value="2997_df">29.97 DF</option>
+        <option value="30_ndf" selected>30 NDF</option>
+        <option value="50_ndf">50 NDF</option>
+        <option value="5994_ndf">59.94 NDF</option>
+        <option value="5994_df">59.94 DF</option>
+        <option value="60_ndf">60 NDF</option>
+      </select>
     </div>
-    <select id="mode" onchange="updateModeUI()" aria-hidden="true" tabindex="-1" class="mode-hidden">
-      <option value="ndf">30 fps / Non-Drop Frame</option>
-      <option value="df">29.97 fps / Drop Frame</option>
-    </select>
   </div>
 </div>
 
@@ -2875,14 +2918,27 @@ input.tc-native-paste{
 
 </div>
 <script>
-const NOMINAL_FPS = 30;
-const NDF_FRAMES_PER_24H = 30 * 60 * 60 * 24;
-const DF_FRAMES_PER_HOUR = 107892;
-const DF_FRAMES_PER_24H = DF_FRAMES_PER_HOUR * 24;
-
+const RATE_CONFIGS = {
+  '23976_ndf': {label:'23.976 NDF', nominal:24, dropFrames:0, exact:'24000/1001'},
+  '24_ndf':    {label:'24 NDF',     nominal:24, dropFrames:0, exact:'24'},
+  '25_ndf':    {label:'25 NDF',     nominal:25, dropFrames:0, exact:'25'},
+  '2997_ndf':  {label:'29.97 NDF',  nominal:30, dropFrames:0, exact:'30000/1001'},
+  '2997_df':   {label:'29.97 DF',   nominal:30, dropFrames:2, exact:'30000/1001'},
+  '30_ndf':    {label:'30 NDF',     nominal:30, dropFrames:0, exact:'30'},
+  '50_ndf':    {label:'50 NDF',     nominal:50, dropFrames:0, exact:'50'},
+  '5994_ndf':  {label:'59.94 NDF',  nominal:60, dropFrames:0, exact:'60000/1001'},
+  '5994_df':   {label:'59.94 DF',   nominal:60, dropFrames:4, exact:'60000/1001'},
+  '60_ndf':    {label:'60 NDF',     nominal:60, dropFrames:0, exact:'60'}
+};
 function currentMode(){ return document.getElementById('mode').value; }
-function isDF(){ return currentMode() === 'df'; }
-function framesPer24Hours(){ return isDF() ? DF_FRAMES_PER_24H : NDF_FRAMES_PER_24H; }
+function currentRate(){ return RATE_CONFIGS[currentMode()] || RATE_CONFIGS['30_ndf']; }
+function nominalFPS(){ return currentRate().nominal; }
+function dropFramesPerMinute(){ return currentRate().dropFrames; }
+function isDF(){ return dropFramesPerMinute() > 0; }
+function framesPer24Hours(){
+  const cfg=currentRate();
+  return cfg.nominal*60*60*24 - cfg.dropFrames*(24*60 - 24*6);
+}
 
 let activeTCInput = null;
 let activePanelNumber = 1;
@@ -3290,18 +3346,21 @@ function applyPastedTC(input, text){
 }
 
 function parseFourField(value){
-  const m = String(value).trim().match(/^(\d{2}):([0-5]\d):([0-5]\d):([0-2]\d)$/);
+  const m = String(value).trim().match(/^(\d{2}):([0-5]\d):([0-5]\d):(\d{2})$/);
   if(!m) return null;
-  return {hh:+m[1],mm:+m[2],ss:+m[3],ff:+m[4]};
+  const p={hh:+m[1],mm:+m[2],ss:+m[3],ff:+m[4]};
+  if(p.ff >= nominalFPS()) return null;
+  return p;
 }
 function parseTCAddress(tc){
   const p = parseFourField(tc);
   if(!p || p.hh > 23) return null;
-  if(isDF() && p.ss === 0 && (p.mm % 10) !== 0 && p.ff < 2) return null;
+  const drop=dropFramesPerMinute();
+  if(drop>0 && p.ss===0 && (p.mm%10)!==0 && p.ff<drop) return null;
   return p;
 }
 function parseDurationValue(tc){
-  return parseFourField(tc); // Duration fields are not subject to DF skipped-label restrictions.
+  return parseFourField(tc); // Duration fields never apply DF skipped-label restrictions.
 }
 
 function validateTCField(el){
@@ -3316,62 +3375,62 @@ function validateAllTCFields(){
   document.querySelectorAll('input[type="text"]').forEach(el=>{ if(!isFrameCountInput(el)) validateTCField(el); });
 }
 
-function tcAddressToFramesNDF(tc){
-  const p = parseTCAddress(tc); if(!p) return NaN;
-  return ((((p.hh*60)+p.mm)*60+p.ss)*30 + p.ff);
+function tcAddressToFrames(tc){
+  const p=parseTCAddress(tc); if(!p) return NaN;
+  const fps=nominalFPS();
+  const drop=dropFramesPerMinute();
+  const totalMinutes=p.hh*60+p.mm;
+  const dropped=drop*(totalMinutes-Math.floor(totalMinutes/10));
+  return ((((p.hh*60)+p.mm)*60+p.ss)*fps+p.ff)-dropped;
 }
-function tcAddressToFramesDF(tc){
-  const p = parseTCAddress(tc); if(!p) return NaN;
-  const totalMinutes = p.hh * 60 + p.mm;
-  const dropped = 2 * (totalMinutes - Math.floor(totalMinutes / 10));
-  return ((((p.hh*60)+p.mm)*60+p.ss)*30 + p.ff) - dropped;
-}
-function tcToFrames(tc){ return isDF() ? tcAddressToFramesDF(tc) : tcAddressToFramesNDF(tc); }
+function tcToFrames(tc){ return tcAddressToFrames(tc); }
 function durationToFrames(tc){
-  const p = parseDurationValue(tc); if(!p) return NaN;
-  return ((((p.hh*60)+p.mm)*60+p.ss)*30 + p.ff);
+  const p=parseDurationValue(tc); if(!p) return NaN;
+  const fps=nominalFPS();
+  return ((((p.hh*60)+p.mm)*60+p.ss)*fps+p.ff);
 }
 
 function modulo(value, mod){ return ((value % mod) + mod) % mod; }
 
-function framesToTCNDF(totalFrames, wrap=true){
-  let f = Math.abs(Math.trunc(totalFrames));
-  if(wrap) f %= NDF_FRAMES_PER_24H;
-  const sign = (!wrap && totalFrames < 0) ? '-' : '';
-  const hh = Math.floor(f / (3600*30));
-  f %= 3600*30;
-  const mm = Math.floor(f / (60*30));
-  f %= 60*30;
-  const ss = Math.floor(f / 30);
-  const ff = f % 30;
+function framesToTCNDFGeneric(totalFrames, wrap=true){
+  const fps=nominalFPS();
+  let f=Math.abs(Math.trunc(totalFrames));
+  if(wrap) f%=fps*60*60*24;
+  const sign=(!wrap && totalFrames<0)?'-':'';
+  const hh=Math.floor(f/(3600*fps));
+  f%=3600*fps;
+  const mm=Math.floor(f/(60*fps));
+  f%=60*fps;
+  const ss=Math.floor(f/fps);
+  const ff=f%fps;
   return `${sign}${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}:${String(ff).padStart(2,'0')}`;
 }
-
-function framesToTCDF(totalFrames, wrap=true){
-  let frames = Math.abs(Math.trunc(totalFrames));
-  if(wrap) frames %= DF_FRAMES_PER_24H;
-  const sign = (!wrap && totalFrames < 0) ? '-' : '';
-  const framesPer10Minutes = 17982;
-  const d = Math.floor(frames / framesPer10Minutes);
-  const m = frames % framesPer10Minutes;
-  let tcFrames = frames + 18 * d;
-  if(m >= 2) tcFrames += 2 * Math.floor((m - 2) / 1798);
-  const hh = Math.floor(tcFrames / (30*60*60));
-  tcFrames %= 30*60*60;
-  const mm = Math.floor(tcFrames / (30*60));
-  tcFrames %= 30*60;
-  const ss = Math.floor(tcFrames / 30);
-  const ff = tcFrames % 30;
+function framesToTCDFGeneric(totalFrames, wrap=true){
+  const fps=nominalFPS();
+  const drop=dropFramesPerMinute();
+  let frames=Math.abs(Math.trunc(totalFrames));
+  if(wrap) frames%=framesPer24Hours();
+  const sign=(!wrap && totalFrames<0)?'-':'';
+  const framesPer10Minutes=fps*60*10-drop*9;
+  const framesPerDropMinute=fps*60-drop;
+  const d=Math.floor(frames/framesPer10Minutes);
+  const m=frames%framesPer10Minutes;
+  let tcFrames=frames+drop*9*d;
+  if(m>=drop) tcFrames+=drop*Math.floor((m-drop)/framesPerDropMinute);
+  const hh=Math.floor(tcFrames/(fps*60*60));
+  tcFrames%=fps*60*60;
+  const mm=Math.floor(tcFrames/(fps*60));
+  tcFrames%=fps*60;
+  const ss=Math.floor(tcFrames/fps);
+  const ff=tcFrames%fps;
   return `${sign}${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}:${String(ff).padStart(2,'0')}`;
 }
-
 function framesToTCAddress(frames){
-  const cycle = framesPer24Hours();
-  const wrapped = modulo(Math.trunc(frames), cycle);
-  return isDF() ? framesToTCDF(wrapped,true) : framesToTCNDF(wrapped,true);
+  const wrapped=modulo(Math.trunc(frames),framesPer24Hours());
+  return isDF()?framesToTCDFGeneric(wrapped,true):framesToTCNDFGeneric(wrapped,true);
 }
-function framesToExtendedTC(frames){ return isDF() ? framesToTCDF(frames,false) : framesToTCNDF(frames,false); }
-function framesToNominalDuration(frames){ return framesToTCNDF(frames,false); }
+function framesToExtendedTC(frames){ return isDF()?framesToTCDFGeneric(frames,false):framesToTCNDFGeneric(frames,false); }
+function framesToNominalDuration(frames){ return framesToTCNDFGeneric(frames,false); }
 
 function showResult(frames){
   panelResultFrames[activePanelNumber] = Math.trunc(frames);
@@ -3412,9 +3471,11 @@ function validateTC(id){
   const el = document.getElementById(id);
   const f = tcToFrames(el.value);
   if(Number.isNaN(f)){
+    const maxFF=nominalFPS()-1;
+    const drop=dropFramesPerMinute();
     alert(isDF()
-      ? 'TCを確認してください。時は00〜23、FFは00〜29です。DFでは10分ごと以外の各分00秒で00・01フレームは使用できません。'
-      : 'TCは HH:MM:SS:FF 形式、時は00〜23、FFは00〜29です。');
+      ? `TCを確認してください。時は00〜23、FFは00〜${String(maxFF).padStart(2,'0')}です。DFでは10分ごと以外の各分00秒で00〜${String(drop-1).padStart(2,'0')}フレームは使用できません。`
+      : `TCは HH:MM:SS:FF 形式、時は00〜23、FFは00〜${String(maxFF).padStart(2,'0')}です。`);
     return null;
   }
   return f;
@@ -3636,21 +3697,16 @@ function showPanel(n){
 
 function setMode(mode){ document.getElementById('mode').value=mode; updateModeUI(); }
 function updateModeUI(){
-  const mode=currentMode();
+  const cfg=currentRate();
   const modeNote=document.getElementById('modeNote');
-  if(modeNote) modeNote.textContent=mode==='df'?'29.97fps ドロップフレーム':'30fps ノンドロップ';
-  document.getElementById('rateNDF').classList.toggle('active',mode==='ndf');
-  document.getElementById('rateDF').classList.toggle('active',mode==='df');
+  if(modeNote) modeNote.textContent=`${cfg.label}${isDF()?' ドロップフレーム':' ノンドロップ'}`;
   validateAllTCFields();
 
-  // Recompute panels whose input meaning changes with frame-rate. If an existing
-  // value becomes invalid in the new mode, clear that panel's RESULT rather than
-  // leaving a stale value from the previous frame rate.
+  // Recompute all frame-rate-sensitive panels. Invalid values clear stale results.
   if(!calcDuration(true)) panelResultFrames[1]=0;
   if(!calcAB(addSubLastOp,true)) panelResultFrames[2]=0;
   if(frameResultDirection==='frames' && !tcToFramesResult(true)) panelResultFrames[3]=0;
   const totalTC=calculateCutTotalFrames(true,true); panelResultFrames[4]=(totalTC===null?0:totalTC);
-  // Total Dur uses duration values, intentionally independent from DF skipped labels.
   const totalDur=calculateDurationTotalFrames(true); panelResultFrames[5]=(totalDur===null?0:totalDur);
   renderPanelResult();
 }
