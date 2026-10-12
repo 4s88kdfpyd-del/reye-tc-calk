@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="REye TC Calk">
+<meta name="theme-color" content="#9bc4e8">
+<meta name="format-detection" content="telephone=no">
 <title>REye TC Calk</title>
 <style>
 :root{
@@ -2724,7 +2727,7 @@ input.tc-native-paste{
 </style>
 
 <style id="beta-0-0-2-r3">
-/* β 0.0.2 r3 — Add/Sub and Frames post-conversion input selection improvements. */
+/* β 0.0.3 r1 — Add/Sub and Frames post-conversion input selection improvements. */
 .rate-select-shell{
   position:relative;min-width:118px;border-radius:15px;padding:3px;
   background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(197,219,241,.58));
@@ -2758,6 +2761,132 @@ input.tc-native-paste{
   .rate-select{font-size:13px;}
 }
 </style>
+
+<style id="beta-0-0-3-r1-responsive-foundation">
+/* β 0.0.3 r1 — responsive foundation for multiple iPhone sizes and future iPad support.
+   No calculator logic changes: only viewport/layout resilience and accessibility polish. */
+:root{
+  --app-content-width:520px;
+  --app-gutter:8px;
+  --app-result-height:60px;
+  --app-keypad-height:254px;
+}
+
+/* Keep the app centered inside the safe area without tying hit regions to one iPhone width. */
+@media (orientation:portrait){
+  body{
+    padding-left:max(var(--app-gutter),env(safe-area-inset-left)) !important;
+    padding-right:max(var(--app-gutter),env(safe-area-inset-right)) !important;
+  }
+  .wrap,
+  .topbar,
+  .tabs,
+  .panel,
+  .result-card,
+  .keypad{
+    width:min(var(--app-content-width),100%) !important;
+    max-width:var(--app-content-width) !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+  }
+
+  .result-card{
+    height:var(--app-result-height) !important;
+    min-height:var(--app-result-height) !important;
+  }
+  .keypad{
+    height:var(--app-keypad-height) !important;
+  }
+}
+
+/* Compact phones — preserve the r8/r9 interaction geometry, only tighten horizontal chrome. */
+@media (orientation:portrait) and (max-width:359px){
+  :root{--app-gutter:5px;}
+  .tabs{gap:3px !important;padding:3px !important;}
+  .tabbtn{min-width:0 !important;}
+  .card{border-radius:18px !important;}
+  input{letter-spacing:.02em !important;}
+}
+
+/* Current large iPhones: let the content use the extra width without stretching beyond phone ergonomics. */
+@media (orientation:portrait) and (min-width:431px) and (max-width:699px){
+  :root{--app-content-width:560px;}
+}
+
+/* iPad portrait foundation.
+   The UI remains a centered single-column calculator, but no longer stays artificially phone-narrow. */
+@media (orientation:portrait) and (min-width:700px){
+  :root{
+    --app-content-width:640px;
+    --app-gutter:18px;
+    --app-result-height:68px;
+    --app-keypad-height:286px;
+  }
+  body{padding-top:max(16px,env(safe-area-inset-top)) !important;}
+  .topbar{margin-bottom:10px !important;}
+  .logo-mark{width:58px !important;height:58px !important;flex-basis:58px !important;border-radius:18px !important;}
+  .brand-time{font-size:30px !important;}
+  .version-tag{font-size:8px !important;}
+  .rate-select-shell{min-width:148px !important;}
+  .rate-select{min-height:38px !important;font-size:13px !important;}
+
+  .tabs{padding:6px !important;gap:6px !important;margin-bottom:10px !important;}
+  .tabbtn{min-height:58px !important;border-radius:17px !important;}
+  .tabbtn .tablabel{font-size:10px !important;}
+  .tabicon{transform:scale(1.06);}
+
+  #panel1 .card,#panel2 .card,#panel3 .card,
+  #panel4 .card,#panel5 .card{
+    padding:12px !important;
+  }
+  .section-title{font-size:18px !important;margin-bottom:7px !important;}
+  label{font-size:12px !important;}
+  input{font-size:29px !important;padding:11px 10px !important;}
+  #panel4 .cut-grid input,#panel5 .dur-input{font-size:22px !important;padding:12px 8px !important;}
+
+  .result-card{padding:6px 16px !important;}
+  .result-card .result{font-size:34px !important;}
+  .result-card .frames{font-size:9px !important;}
+
+  .keypad{padding:8px !important;}
+  .keypad-grid{gap:6px !important;}
+  .key{font-size:27px !important;border-radius:15px !important;}
+  .key-backspace{font-size:30px !important;}
+  .key-nav{font-size:22px !important;}
+
+  /* On iPad, center the Total workspace too; legacy phone rules use a small left/right expansion. */
+  #panel4.active,#panel5.active{
+    width:648px !important;
+    max-width:calc(100vw - (2 * var(--app-gutter))) !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+  }
+
+  body.total-mode #panel4 .cut-scroll-area,
+  body.total-mode #panel5 .cut-scroll-area{
+    scrollbar-gutter:stable;
+  }
+}
+
+/* iPad-class tall screens: give Total lists more room while keeping RESULT/keypad stationary. */
+@media (orientation:portrait) and (min-width:700px) and (min-height:1000px){
+  body.total-mode > #panel4.active,
+  body.total-mode > #panel5.active{
+    min-height:280px !important;
+  }
+}
+
+/* Avoid decorative animation becoming a usability issue when reduced motion is requested. */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+    scroll-behavior:auto !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div id="portraitOnly" class="portrait-only-overlay" aria-live="polite">
@@ -2777,7 +2906,7 @@ input.tc-native-paste{
       <span class="mark-shine"></span>
     </div>
     <div class="logo-type">
-      <h1 class="brand"><span class="brand-time">REye TC Calk</span><span class="version-tag">β 0.0.2 r3</span></h1>
+      <h1 class="brand"><span class="brand-time">REye TC Calk</span><span class="version-tag">β 0.0.3 r1</span></h1>
     </div>
   </div>
 
