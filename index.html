@@ -2642,8 +2642,8 @@ input.tc-native-paste{
 }
 </style>
 
-<style id="beta-0-0-1-r8">
-/* β 0.0.1 r8 — stable caret editing and custom-keypad selection handling. */
+<style id="beta-0-0-1-r9">
+/* β 0.0.1 r9 — live Total TC/Total Dur calculation. */
 .frame-mode-switch{
   display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;margin:0 0 9px;
   border-radius:14px;background:rgba(35,62,87,.10);border:1px solid rgba(87,137,181,.16);
@@ -2741,7 +2741,7 @@ input.tc-native-paste{
       <span class="mark-shine"></span>
     </div>
     <div class="logo-type">
-      <h1 class="brand"><span class="brand-time">REye TC Calk</span><span class="version-tag">β 0.0.1 r8</span></h1>
+      <h1 class="brand"><span class="brand-time">REye TC Calk</span><span class="version-tag">β 0.0.1 r9</span></h1>
     </div>
   </div>
 
@@ -2828,7 +2828,6 @@ input.tc-native-paste{
       <div id="cutList" class="cut-list"></div>
     </div>
     <button class="cut-add-inline" type="button" onclick="addCutRow()">＋ カット追加</button>
-    <button class="cut-total-full" type="button" onclick="calcCutTotal()">Total TCを計算</button>
     <div class="cut-summary"><span>登録カット数</span><strong id="cutCount">0 CUTS</strong></div>
   </div>
 </div>
@@ -2840,7 +2839,6 @@ input.tc-native-paste{
       <div id="durList" class="cut-list dur-list"></div>
     </div>
     <button class="cut-add-inline" type="button" onclick="addDurationRow()">＋ カット追加</button>
-    <button class="cut-total-full" type="button" onclick="calcDurationTotal()">Total Durを計算</button>
     <div class="cut-summary"><span>登録カット数</span><strong id="durCount">0 CUTS</strong></div>
   </div>
 </div>
@@ -3079,6 +3077,7 @@ function wireTCInput(el){
       setActiveTCInput(el);
       validateTCField(el);
       selectWholeInput(el, true);
+      refreshLiveTotalForInput(el);
     }
   });
   validateTCField(el);
@@ -3091,6 +3090,19 @@ document.addEventListener('selectionchange',()=>{
   if(!el || document.activeElement!==el) return;
   syncSelectionMode(el);
 });
+
+function refreshLiveTotalForInput(el=activeTCInput){
+  if(!el) return;
+  if(el.closest('#panel4')){
+    const total=calculateCutTotalFrames(true,true);
+    panelResultFrames[4]=(total===null?0:total);
+    if(activePanelNumber===4) renderPanelResult();
+  }else if(el.closest('#panel5')){
+    const total=calculateDurationTotalFrames(true);
+    panelResultFrames[5]=(total===null?0:total);
+    if(activePanelNumber===5) renderPanelResult();
+  }
+}
 
 function activeDigits(){
   if(!activeTCInput) return '';
@@ -3106,6 +3118,7 @@ function setActiveDigits(digits){
     digits = digits.slice(0,9);
     activeTCInput.dataset.rawDigits = digits;
     activeTCInput.value = digits || '0';
+    refreshLiveTotalForInput(activeTCInput);
     return;
   }
 
@@ -3114,6 +3127,7 @@ function setActiveDigits(digits){
   const padded = digits.padStart(8,'0');
   activeTCInput.value = `${padded.slice(0,2)}:${padded.slice(2,4)}:${padded.slice(4,6)}:${padded.slice(6,8)}`;
   validateTCField(activeTCInput);
+  refreshLiveTotalForInput(activeTCInput);
 }
 
 const TC_DIGIT_POSITIONS = [0,1,3,4,6,7,9,10];
@@ -3135,6 +3149,7 @@ function keypadPressAtCaret(digit){
     el.dataset.replaceOnNextKey='0';
     const caret=Math.min(start+1,el.value.length);
     restoreSelectionWithoutReselect(el,caret,caret);
+    refreshLiveTotalForInput(el);
     return true;
   }
 
@@ -3151,6 +3166,7 @@ function keypadPressAtCaret(digit){
   const idx=TC_DIGIT_POSITIONS.indexOf(pos);
   const caret=(idx>=0 && idx<TC_DIGIT_POSITIONS.length-1) ? TC_DIGIT_POSITIONS[idx+1] : el.value.length;
   restoreSelectionWithoutReselect(el,caret,caret);
+  refreshLiveTotalForInput(el);
   return true;
 }
 
@@ -3168,6 +3184,7 @@ function keypadBackspaceAtCaret(){
     el.value=digits||'0'; el.dataset.rawDigits=digits; el.dataset.replaceOnNextKey='0';
     nextCaret=Math.min(nextCaret,el.value.length);
     restoreSelectionWithoutReselect(el,nextCaret,nextCaret);
+    refreshLiveTotalForInput(el);
     return true;
   }
   const chars=el.value.split('');
@@ -3179,6 +3196,7 @@ function keypadBackspaceAtCaret(){
   el.value=chars.join(''); el.dataset.rawDigits=el.value.replace(/\D/g,''); el.dataset.replaceOnNextKey='0'; validateTCField(el);
   const caret=targets[0];
   restoreSelectionWithoutReselect(el,caret,caret);
+  refreshLiveTotalForInput(el);
   return true;
 }
 
@@ -3216,6 +3234,7 @@ function keypadClear(){
     activeTCInput.value = '00:00:00:00';
     validateTCField(activeTCInput);
   }
+  refreshLiveTotalForInput(activeTCInput);
 }
 
 function visibleTCInputs(){
@@ -3266,6 +3285,7 @@ function applyPastedTC(input, text){
   setActiveTCInput(input);
   const valid = validateTCField(input);
   selectWholeInput(input, true);
+  refreshLiveTotalForInput(input);
   return valid;
 }
 
@@ -3492,6 +3512,7 @@ function addCutRow(start='00:00:00:00', end='00:00:00:00'){
   list.appendChild(row);
   row.querySelectorAll('input[type="text"]').forEach(wireTCInput);
   renumberCuts();
+  refreshLiveTotalForInput(row.querySelector('.cut-start'));
   requestAnimationFrame(()=>{ const area=document.getElementById('cutScrollArea'); if(area) area.scrollTop=area.scrollHeight; });
   requestAnimationFrame(()=>{ if(document.getElementById('panel4').classList.contains('active')) activateAndSelectInput(row.querySelector('.cut-start')); });
 }
@@ -3501,9 +3522,12 @@ function removeCutRow(btn){
     const start=rows[0].querySelector('.cut-start'), end=rows[0].querySelector('.cut-end');
     for(const el of [start,end]){ el.value='00:00:00:00'; el.dataset.rawDigits=''; el.dataset.replaceOnNextKey='1'; validateTCField(el); }
     rows[0].querySelector('.cut-duration').textContent='Dur 00:00:00:00';
+    refreshLiveTotalForInput(start);
     return;
   }
   btn.closest('.cut-row').remove(); renumberCuts();
+  const remaining=document.querySelector('#cutList .cut-start');
+  if(remaining) refreshLiveTotalForInput(remaining);
 }
 function renumberCuts(){
   const rows=[...document.querySelectorAll('#cutList .cut-row')];
@@ -3513,18 +3537,24 @@ function renumberCuts(){
 function calculateCutTotalFrames(updateRows=true, silent=false){
   const rows=[...document.querySelectorAll('#cutList .cut-row')];
   let total=0;
+  let invalidIndex=-1;
   for(let i=0;i<rows.length;i++){
     const s=tcToFrames(rows[i].querySelector('.cut-start').value);
     const e=tcToFrames(rows[i].querySelector('.cut-end').value);
     if(Number.isNaN(s)||Number.isNaN(e)){
-      if(!silent) alert(`CUT ${i+1} のTCを確認してください。`);
-      return null;
+      if(updateRows) rows[i].querySelector('.cut-duration').textContent='Dur --:--:--:--';
+      if(invalidIndex<0) invalidIndex=i;
+      continue;
     }
     // START/END are 24-hour TC addresses; a lower END means the cut crossed midnight.
     let d=e-s;
     if(d<0) d+=framesPer24Hours();
     total+=d;
     if(updateRows) rows[i].querySelector('.cut-duration').textContent=`Dur ${framesToExtendedTC(d)}`;
+  }
+  if(invalidIndex>=0){
+    if(!silent) alert(`CUT ${invalidIndex+1} のTCを確認してください。`);
+    return null;
   }
   return total;
 }
@@ -3551,6 +3581,7 @@ function addDurationRow(value='00:00:00:00'){
   list.appendChild(row);
   wireTCInput(row.querySelector('.dur-input'));
   renumberDurationRows();
+  refreshLiveTotalForInput(row.querySelector('.dur-input'));
   requestAnimationFrame(()=>{ const area=document.getElementById('durScrollArea'); if(area) area.scrollTop=area.scrollHeight; });
   requestAnimationFrame(()=>{ if(document.getElementById('panel5').classList.contains('active')) activateAndSelectInput(row.querySelector('.dur-input')); });
 }
@@ -3558,9 +3589,11 @@ function removeDurationRow(btn){
   const rows=document.querySelectorAll('#durList .dur-row');
   if(rows.length<=1){
     const el=rows[0].querySelector('.dur-input');
-    el.value='00:00:00:00'; el.dataset.rawDigits=''; el.dataset.replaceOnNextKey='1'; validateTCField(el); return;
+    el.value='00:00:00:00'; el.dataset.rawDigits=''; el.dataset.replaceOnNextKey='1'; validateTCField(el); refreshLiveTotalForInput(el); return;
   }
   btn.closest('.dur-row').remove(); renumberDurationRows();
+  const remaining=document.querySelector('#durList .dur-input');
+  if(remaining) refreshLiveTotalForInput(remaining);
 }
 function renumberDurationRows(){
   const rows=[...document.querySelectorAll('#durList .dur-row')];
