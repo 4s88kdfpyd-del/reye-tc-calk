@@ -2511,6 +2511,30 @@ input.tc-native-paste{
 }
 </style>
 
+
+<style id="beta-0-0-1-r5-touch-fix">
+/* β 0.0.1 r5 — retain the iOS/PWA hit-test fix from r4.
+   Let the document/window own vertical scrolling; horizontal drag is still blocked by JS below. */
+html{
+  height:auto !important;
+  min-height:100% !important;
+  overflow-x:clip !important;
+  overflow-y:auto !important;
+}
+body{
+  position:relative !important;
+  inset:auto !important;
+  height:auto !important;
+  min-height:100dvh !important;
+  overflow-x:clip !important;
+  overflow-y:visible !important;
+}
+/* Native edit gestures need the actual input hit box, not the page drag guard. */
+input.tc-native-paste{
+  touch-action:auto !important;
+}
+</style>
+
 </head>
 <body>
 <div id="portraitOnly" class="portrait-only-overlay" aria-live="polite">
@@ -2530,7 +2554,7 @@ input.tc-native-paste{
       <span class="mark-shine"></span>
     </div>
     <div class="logo-type">
-      <h1 class="brand"><span class="brand-time">REye TC Calk</span><span class="version-tag">β 0.0.1 r3</span></h1>
+      <h1 class="brand"><span class="brand-time">REye TC Calk</span><span class="version-tag">β 0.0.1 r5</span></h1>
     </div>
   </div>
 
@@ -2982,8 +3006,14 @@ function addCutRow(start='00:00:00:00', end='00:00:00:00'){
 function removeCutRow(btn){
   const rows = document.querySelectorAll('#cutList .cut-row');
   if(rows.length <= 1){
-    rows[0].querySelector('.cut-start').value='00:00:00:00';
-    rows[0].querySelector('.cut-end').value='00:00:00:00';
+    const start = rows[0].querySelector('.cut-start');
+    const end = rows[0].querySelector('.cut-end');
+    start.value='00:00:00:00';
+    end.value='00:00:00:00';
+    start.dataset.rawDigits='';
+    end.dataset.rawDigits='';
+    validateTCField(start);
+    validateTCField(end);
     rows[0].querySelector('.cut-duration').textContent='尺 00:00:00:00';
     return;
   }
@@ -3027,7 +3057,17 @@ function calcCutTotal(){
   showResult(total);
 }
 
+let activePanelNumber = 1;
+const panelResultFrames = {1:0,2:0,3:0,4:0,5:0};
+
+function renderPanelResult(){
+  const frames = panelResultFrames[activePanelNumber] ?? 0;
+  document.getElementById('result').textContent = framesToTC(frames);
+  document.getElementById('frames').textContent = `${Math.trunc(frames).toLocaleString()} フレーム`;
+}
+
 function showPanel(n){
+  activePanelNumber = n;
   setActiveTCInput(null);
   document.body.classList.toggle('total-mode', n === 5);
 
@@ -3038,6 +3078,9 @@ function showPanel(n){
   document.querySelectorAll('.tabbtn').forEach((b,i)=>{
     b.classList.toggle('active', i === n-1);
   });
+
+  // Each function owns its own RESULT. New/uncomputed functions start at zero.
+  renderPanelResult();
 
   // タブを切り替えたら、その機能の最初のタイムコード入力欄を自動選択
   requestAnimationFrame(()=>{
@@ -3073,6 +3116,10 @@ function updateModeUI(){
     el.textContent = '尺 00:00:00:00';
   });
   validateAllTCFields();
+
+  // RESULT values are stored internally as frame counts. When the frame-rate
+  // display mode changes, redraw the active function's RESULT immediately.
+  renderPanelResult();
 }
 
 
@@ -3187,8 +3234,8 @@ function framesToTC(frames){
 }
 
 function showResult(frames){
-  document.getElementById('result').textContent = framesToTC(frames);
-  document.getElementById('frames').textContent = `${Math.trunc(frames).toLocaleString()} フレーム`;
+  panelResultFrames[activePanelNumber] = frames;
+  renderPanelResult();
 }
 
 function validateTC(id){
@@ -3231,13 +3278,26 @@ function swapStartEnd(){
   const a=document.getElementById('startTC');
   const b=document.getElementById('endTC');
   [a.value,b.value]=[b.value,a.value];
+
+  // Keep the custom keypad's internal digit state in sync with the visible TC.
+  a.dataset.rawDigits = a.value.replace(/\D/g,'') === '00000000' ? '' : a.value.replace(/\D/g,'');
+  b.dataset.rawDigits = b.value.replace(/\D/g,'') === '00000000' ? '' : b.value.replace(/\D/g,'');
+  validateTCField(a);
+  validateTCField(b);
 }
 
 function resetAll(){
   ['startTC','endTC','baseTC','durTC','tcA','tcB'].forEach(id=>{
-    document.getElementById(id).value='00:00:00:00';
+    const el = document.getElementById(id);
+    el.value='00:00:00:00';
+    el.dataset.rawDigits='';
+    validateTCField(el);
   });
-  document.getElementById('frameInput').value='0';
+
+  const frameInput = document.getElementById('frameInput');
+  frameInput.value='0';
+  frameInput.dataset.rawDigits='';
+
   const cutList = document.getElementById('cutList');
   if(cutList){
     cutList.innerHTML='';
@@ -3245,7 +3305,10 @@ function resetAll(){
     addCutRow();
     addCutRow();
   }
-  showResult(0);
+
+  // This is a global reset, so clear every function's stored RESULT as well.
+  Object.keys(panelResultFrames).forEach(key=>{ panelResultFrames[key] = 0; });
+  renderPanelResult();
 }
 
 async function copyResult(){
@@ -3314,6 +3377,9 @@ if(cutAddButton){
 }
 
 window.addEventListener('load', ()=>{
+  activePanelNumber = 1;
+  panelResultFrames[1] = 0;
+  renderPanelResult();
   requestAnimationFrame(()=>{
     const firstTC = document.querySelector('#panel1 input[type="text"]');
     if(firstTC){
